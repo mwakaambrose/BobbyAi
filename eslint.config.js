@@ -107,6 +107,9 @@ export default [
             'vendor',
             'node_modules',
             'public',
+            // The browser sidecar is a separate Node package with its own
+            // dependencies and its own test runner (node --test).
+            'browser/**',
             'bootstrap/ssr',
             'tailwind.config.js',
             'vite.config.ts',

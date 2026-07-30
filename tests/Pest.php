@@ -64,3 +64,16 @@ function teamUser(): array
 
     return [$user->fresh(), $team];
 }
+
+/**
+ * Perform an Inertia partial reload, which is how a deferred prop is fetched.
+ */
+function partialReload(object $test, string $url, string $component, string $only)
+{
+    return $test->get($url, [
+        'X-Inertia' => 'true',
+        'X-Inertia-Version' => (string) (new App\Http\Middleware\HandleInertiaRequests)->version(request()),
+        'X-Inertia-Partial-Data' => $only,
+        'X-Inertia-Partial-Component' => $component,
+    ]);
+}

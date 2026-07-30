@@ -59,6 +59,14 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+
+    /* Agent activity. The neutral primary of this kit carries no chroma, so
+       these three are the only chromatic signals in the product: live work,
+       a blocked action, and a confirmed publish. */
+    --color-agent: var(--agent);
+    --color-agent-muted: var(--agent-muted);
+    --color-gate: var(--gate);
+    --color-verified: var(--verified);
 }
 
 :root {
@@ -87,6 +95,10 @@
     --chart-4: oklch(0.828 0.189 84.429);
     --chart-5: oklch(0.769 0.188 70.08);
     --radius: 0.625rem;
+    --agent: oklch(0.53 0.2 285);
+    --agent-muted: oklch(0.53 0.2 285 / 12%);
+    --gate: oklch(0.66 0.16 68);
+    --verified: oklch(0.6 0.14 158);
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
     --sidebar-primary: oklch(0.205 0 0);
@@ -130,6 +142,10 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(0.269 0 0);
     --sidebar-ring: oklch(0.439 0 0);
+    --agent: oklch(0.72 0.17 288);
+    --agent-muted: oklch(0.72 0.17 288 / 16%);
+    --gate: oklch(0.78 0.15 72);
+    --verified: oklch(0.72 0.15 160);
 }
 
 @layer base {

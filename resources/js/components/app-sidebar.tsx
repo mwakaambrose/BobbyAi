@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { BookOpen, FolderGit2, History, LayoutGrid, Palette, PenLine, Plug } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -14,7 +14,10 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { dashboard, studio } from '@/routes';
+import { index as accountsIndex } from '@/routes/accounts';
+import { edit as brandEdit } from '@/routes/brand';
+import { index as runsIndex } from '@/routes/runs';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
@@ -23,12 +26,22 @@ export function AppSidebar() {
         ? dashboard(page.props.currentTeam.slug)
         : '/';
 
+    const teamSlug = page.props.currentTeam?.slug;
+
     const mainNavItems: NavItem[] = [
         {
             title: 'Dashboard',
             href: dashboardUrl,
             icon: LayoutGrid,
         },
+        ...(teamSlug
+            ? [
+                  { title: 'Studio', href: studio(teamSlug), icon: PenLine },
+                  { title: 'Runs', href: runsIndex(teamSlug), icon: History },
+                  { title: 'Accounts', href: accountsIndex(teamSlug), icon: Plug },
+                  { title: 'Brand', href: brandEdit(teamSlug), icon: Palette },
+              ]
+            : []),
     ];
 
     const footerNavItems: NavItem[] = [
