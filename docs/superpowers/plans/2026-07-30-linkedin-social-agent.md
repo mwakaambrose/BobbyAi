@@ -22,7 +22,7 @@ Every task's requirements implicitly include this section.
 - **Frontend routing.** Use Wayfinder-generated imports from `@/actions/...` or `@/routes/...`. Never hardcode a URL string.
 - **Testing.** Pest. Every task ends with passing tests. Run the narrowest command: `php artisan test --compact --filter=<Name>`. Real LinkedIn is never touched by a test.
 - **Formatting gates.** After PHP changes: `vendor/bin/pint --dirty --format agent`. After TS/React changes: `npm run lint` and `npm run types:check`.
-- **laravel/ai is 0.x.** The API shapes in this plan were read from `laravel/ai@main`. If an installed-version signature differs, the failing test will say so — fix the call site to match the installed package, do not fight the package.
+- **laravel/ai is 0.x.** Installed version is v0.10.1. Faking uses the agent's own static API — `MyAgent::fake([...])`, `MyAgent::assertPrompted(fn ($prompt) => ...)`, `MyAgent::assertNeverPrompted()` — NOT `Ai::fakeAgent()`. Structured responses are array-accessible (`$response['action']`). Providers are referenced with `Laravel\Ai\Enums\Lab` or a config key string. Consult the `ai-sdk-development` skill and `search-docs` before writing agent code.
 - **Config values (exact).** step cap `18`, run timeout `300`s, browser step timeout `20`s, inference timeout `60`s, screenshot retention `30` days, sidecar `http://127.0.0.1:4571`, allowed host `www.linkedin.com`, feed URL `https://www.linkedin.com/feed/`.
 - **Commits.** One commit per task minimum, conventional-commit style (`feat:`, `test:`, `chore:`).
 
@@ -3280,7 +3280,6 @@ use App\Agent\Values\RunContract;
 use App\Ai\Agents\ActionPlannerAgent;
 use App\Ai\Agents\PublishVerifierAgent;
 use App\Enums\ActionType;
-use Laravel\Ai\Ai;
 
 function planningObservation(): Observation
 {
@@ -3298,7 +3297,7 @@ function planningContract(): RunContract
 }
 
 test('it turns model output into an action', function (): void {
-    Ai::fakeAgent(ActionPlannerAgent::class, [
+    ActionPlannerAgent::fake([
         ['action' => 'click', 'ref' => 7, 'text' => null, 'key' => null, 'why' => 'the composer is not open'],
     ]);
 
@@ -3310,18 +3309,18 @@ test('it turns model output into an action', function (): void {
 });
 
 test('it sends the element list and the step history in the prompt', function (): void {
-    Ai::fakeAgent(ActionPlannerAgent::class, [
+    ActionPlannerAgent::fake([
         ['action' => 'wait', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'page is loading'],
     ]);
 
     app(ActionPlanner::class)->next(planningObservation(), planningContract(), ['1. click #7 -> ok']);
 
-    Ai::assertAgentWasPrompted(ActionPlannerAgent::class, fn ($prompt): bool => str_contains($prompt->prompt, '[7] button "Start a post"')
+    ActionPlannerAgent::assertPrompted(fn ($prompt): bool => str_contains($prompt->prompt, '[7] button "Start a post"')
         && str_contains($prompt->prompt, '1. click #7 -> ok'));
 });
 
 test('it retries once when the model returns an unusable action', function (): void {
-    Ai::fakeAgent(ActionPlannerAgent::class, [
+    ActionPlannerAgent::fake([
         ['action' => 'teleport', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'nonsense'],
         ['action' => 'wait', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'settle'],
     ]);
@@ -3332,7 +3331,7 @@ test('it retries once when the model returns an unusable action', function (): v
 });
 
 test('it fails the run when both attempts are unusable', function (): void {
-    Ai::fakeAgent(ActionPlannerAgent::class, [
+    ActionPlannerAgent::fake([
         ['action' => 'teleport', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'nonsense'],
         ['action' => 'teleport', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'still nonsense'],
     ]);
@@ -3341,7 +3340,7 @@ test('it fails the run when both attempts are unusable', function (): void {
 })->throws(PlannerFailed::class);
 
 test('it verifies whether the post went live', function (): void {
-    Ai::fakeAgent(PublishVerifierAgent::class, [
+    PublishVerifierAgent::fake([
         ['published' => true, 'evidence' => 'The post appears at the top of the feed.', 'url' => 'https://www.linkedin.com/feed/update/123'],
     ]);
 
@@ -3354,13 +3353,13 @@ test('it verifies whether the post went live', function (): void {
 test('it omits the screenshot attachment in text perception mode', function (): void {
     config()->set('agent.perception', 'text');
 
-    Ai::fakeAgent(ActionPlannerAgent::class, [
+    ActionPlannerAgent::fake([
         ['action' => 'wait', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'settle'],
     ]);
 
     app(ActionPlanner::class)->next(planningObservation(), planningContract(), []);
 
-    Ai::assertAgentWasPrompted(ActionPlannerAgent::class, fn ($prompt): bool => $prompt->attachments === []);
+    ActionPlannerAgent::assertPrompted(fn ($prompt): bool => $prompt->attachments === []);
 });
 ```
 
@@ -3605,7 +3604,7 @@ final class ActionPlanner
 - [ ] **Step 6: Run the test to verify it passes**
 
 Run: `php artisan test --compact --filter=ActionPlannerTest`
-Expected: PASS (6 tests). If `Ai::fakeAgent` or the schema builder differs in the installed 0.x release, adjust the call to match the package and keep the assertions.
+Expected: PASS (6 tests). If the `JsonSchema` builder methods differ in the installed release, adjust the call to match the package and keep the assertions.
 
 - [ ] **Step 7: Format and commit**
 
@@ -3648,7 +3647,6 @@ use App\Enums\RunStatus;
 use App\Models\AgentRun;
 use App\Models\Post;
 use App\Models\SocialAccount;
-use Laravel\Ai\Ai;
 
 const RUNNER_BODY = 'We built Growth Savings because members asked for it.';
 
@@ -3709,14 +3707,14 @@ function fakeDriver(): FakeBrowserDriver
 test('it publishes a post through the full loop', function (): void {
     $driver = fakeDriver();
 
-    Ai::fakeAgent(ActionPlannerAgent::class, [
+    ActionPlannerAgent::fake([
         ['action' => 'click', 'ref' => 7, 'text' => null, 'key' => null, 'why' => 'open the composer'],
         ['action' => 'type', 'ref' => 12, 'text' => RUNNER_BODY, 'key' => null, 'why' => 'write the approved copy'],
         ['action' => 'click', 'ref' => 19, 'text' => null, 'key' => null, 'why' => 'submit the post'],
         ['action' => 'finish', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'submitted'],
     ]);
 
-    Ai::fakeAgent(PublishVerifierAgent::class, [
+    PublishVerifierAgent::fake([
         ['published' => true, 'evidence' => 'The post is at the top of the feed.', 'url' => 'https://www.linkedin.com/feed/update/123'],
     ]);
 
@@ -3732,11 +3730,11 @@ test('it publishes a post through the full loop', function (): void {
 test('it records a step for every phase with screenshots and reasoning', function (): void {
     fakeDriver();
 
-    Ai::fakeAgent(ActionPlannerAgent::class, [
+    ActionPlannerAgent::fake([
         ['action' => 'finish', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'nothing to do'],
     ]);
 
-    Ai::fakeAgent(PublishVerifierAgent::class, [
+    PublishVerifierAgent::fake([
         ['published' => true, 'evidence' => 'Visible in feed.', 'url' => null],
     ]);
 
@@ -3753,7 +3751,7 @@ test('it records a step for every phase with screenshots and reasoning', functio
 test('it blocks an off contract action and records the denial', function (): void {
     $driver = fakeDriver();
 
-    Ai::fakeAgent(ActionPlannerAgent::class, [
+    ActionPlannerAgent::fake([
         ['action' => 'type', 'ref' => 12, 'text' => RUNNER_BODY.' #growth', 'key' => null, 'why' => 'add a hashtag'],
         ['action' => 'abort', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'blocked'],
     ]);
@@ -3769,7 +3767,7 @@ test('it blocks an off contract action and records the denial', function (): voi
 test('it aborts after two identical denials', function (): void {
     fakeDriver();
 
-    Ai::fakeAgent(ActionPlannerAgent::class, [
+    ActionPlannerAgent::fake([
         ['action' => 'click', 'ref' => 404, 'text' => null, 'key' => null, 'why' => 'stale ref'],
         ['action' => 'click', 'ref' => 404, 'text' => null, 'key' => null, 'why' => 'stale ref again'],
         ['action' => 'click', 'ref' => 404, 'text' => null, 'key' => null, 'why' => 'and again'],
@@ -3784,7 +3782,7 @@ test('it aborts after two identical denials', function (): void {
 test('it fails the run when the step budget is exhausted', function (): void {
     fakeDriver();
 
-    Ai::fakeAgent(ActionPlannerAgent::class, fn (): array => [
+    ActionPlannerAgent::fake(fn (): array => [
         'action' => 'scroll', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'looking around',
     ]);
 
@@ -3800,11 +3798,11 @@ test('it fails the run when the step budget is exhausted', function (): void {
 test('it fails the run as unverified when the post cannot be confirmed', function (): void {
     fakeDriver();
 
-    Ai::fakeAgent(ActionPlannerAgent::class, [
+    ActionPlannerAgent::fake([
         ['action' => 'finish', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'submitted'],
     ]);
 
-    Ai::fakeAgent(PublishVerifierAgent::class, [
+    PublishVerifierAgent::fake([
         ['published' => false, 'evidence' => 'The composer is still open.', 'url' => null],
     ]);
 
@@ -4163,7 +4161,6 @@ use App\Agent\Copywriter;
 use App\Ai\Agents\CopywriterAgent;
 use App\Models\BrandProfile;
 use App\Models\Post;
-use Laravel\Ai\Ai;
 
 function draftPayload(string $suffix = ''): array
 {
@@ -4175,7 +4172,7 @@ function draftPayload(string $suffix = ''): array
 }
 
 test('it persists three drafts with character counts', function (): void {
-    Ai::fakeAgent(CopywriterAgent::class, [draftPayload()]);
+    CopywriterAgent::fake([draftPayload()]);
 
     $post = Post::factory()->create();
 
@@ -4188,7 +4185,7 @@ test('it persists three drafts with character counts', function (): void {
 });
 
 test('it conditions the prompt on the brand profile', function (): void {
-    Ai::fakeAgent(CopywriterAgent::class, [draftPayload()]);
+    CopywriterAgent::fake([draftPayload()]);
 
     $post = Post::factory()->create();
     $brand = BrandProfile::factory()->create([
@@ -4199,13 +4196,13 @@ test('it conditions the prompt on the brand profile', function (): void {
 
     app(Copywriter::class)->draftsFor($post, 'Announce Growth Savings.', $brand);
 
-    Ai::assertAgentWasPrompted(CopywriterAgent::class, fn ($prompt): bool => str_contains($prompt->prompt, 'Warm and direct.')
+    CopywriterAgent::assertPrompted(fn ($prompt): bool => str_contains($prompt->prompt, 'Warm and direct.')
         && str_contains($prompt->prompt, 'synergy')
         && str_contains($prompt->prompt, 'Announce Growth Savings.'));
 });
 
 test('it regenerates once when a draft uses a banned term', function (): void {
-    Ai::fakeAgent(CopywriterAgent::class, [
+    CopywriterAgent::fake([
         ['drafts' => [
             ['body' => 'Real synergy here.', 'rationale' => 'Bad.'],
             ['body' => 'Fine copy.', 'rationale' => 'Good.'],
@@ -4230,7 +4227,7 @@ test('it detects banned terms case insensitively on word boundaries', function (
 });
 
 test('it replaces previous drafts when revising', function (): void {
-    Ai::fakeAgent(CopywriterAgent::class, [draftPayload(), draftPayload(' v2')]);
+    CopywriterAgent::fake([draftPayload(), draftPayload(' v2')]);
 
     $post = Post::factory()->create();
     $copywriter = app(Copywriter::class);
@@ -4476,7 +4473,6 @@ use App\Models\SocialAccount;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
-use Laravel\Ai\Ai;
 
 function teamUser(): array
 {
@@ -4490,7 +4486,7 @@ function teamUser(): array
 
 function fakeDrafts(): void
 {
-    Ai::fakeAgent(CopywriterAgent::class, [
+    CopywriterAgent::fake([
         ['drafts' => [
             ['body' => 'Hook led draft.', 'rationale' => 'Hook.'],
             ['body' => 'Story led draft.', 'rationale' => 'Story.'],
@@ -7218,7 +7214,7 @@ git commit -m "feat: add agent doctor, screenshot pruning and studio navigation"
 **Known follow-ups, deliberately out of scope.** `RunMode::Step` is persisted and rendered but the per-action confirmation UI is not built — the enum exists so the runner can gain it without a migration. Screenshot storage is unbounded between prune runs. There is no pagination on the Studio board.
 
 **Watch items during execution.**
-- `laravel/ai` is 0.x: `Ai::fakeAgent`, `Promptable::prompt` named arguments, and the `JsonSchema` builder methods (`->enum()`, `->items()`, `->object()`) are the three places an installed-version difference will surface first. Tests in Tasks 9–11 will catch it.
+- `laravel/ai` is 0.x: `Promptable::prompt` named arguments and the `JsonSchema` builder methods (`->enum()`, `->items()`, `->object()`) are where an installed-version difference will surface. Tests in Tasks 9–11 will catch it. The fake API was already corrected to `MyAgent::fake()` after reading the installed package.
 - Inertia v3 `Deferred` render-prop shape and `usePoll` signature are the equivalent risk on the frontend, caught in Tasks 16–17.
 - Task 12's route registration references controllers created as stubs in that same task; Tasks 13–15 fill them in. Running the suite between those tasks will show `posts/show` page-missing errors until Task 16 if `inertia.pages.ensure_pages_exist` is on for tests.
 
