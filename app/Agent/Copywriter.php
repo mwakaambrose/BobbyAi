@@ -7,6 +7,7 @@ use App\Models\BrandProfile;
 use App\Models\Post;
 use App\Models\PostDraft;
 use Illuminate\Support\Collection;
+use Laravel\Ai\Responses\StructuredAgentResponse;
 
 /**
  * Generates brand conditioned drafts, enforcing banned terms deterministically
@@ -26,7 +27,7 @@ final class Copywriter
      */
     public function draftsFor(Post $post, string $brief, ?BrandProfile $brand, ?string $revisionOf = null): Collection
     {
-        $banned = $brand?->banned_terms ?? [];
+        $banned = $brand->banned_terms ?? [];
 
         $drafts = $this->generate($brief, $brand, $revisionOf);
 
@@ -77,7 +78,7 @@ final class Copywriter
             timeout: config('agent.inference_timeout'),
         );
 
-        return $response->toArray()['drafts'] ?? [];
+        return $response instanceof StructuredAgentResponse ? ($response->toArray()['drafts'] ?? []) : [];
     }
 
     /**

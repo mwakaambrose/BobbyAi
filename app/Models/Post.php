@@ -3,14 +3,36 @@
 namespace App\Models;
 
 use App\Enums\PostStatus;
+use Carbon\CarbonInterface;
+use Database\Factories\PostFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property int $team_id
+ * @property int|null $social_account_id
+ * @property int $author_id
+ * @property string $brief
+ * @property PostStatus $status
+ * @property string|null $approved_body
+ * @property CarbonInterface|null $approved_at
+ * @property int|null $approved_by
+ * @property string|null $published_url
+ * @property CarbonInterface|null $published_at
+ * @property CarbonInterface $updated_at
+ * @property-read Team $team
+ * @property-read SocialAccount|null $account
+ * @property-read Collection<int, PostDraft> $drafts
+ * @property-read Collection<int, PostMessage> $messages
+ * @property-read Collection<int, AgentRun> $runs
+ */
 class Post extends Model
 {
-    /** @use HasFactory<\Database\Factories\PostFactory> */
+    /** @use HasFactory<PostFactory> */
     use HasFactory;
 
     protected $guarded = [];

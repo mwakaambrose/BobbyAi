@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Agent;
 
+use App\Models\Post;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -26,7 +27,9 @@ class ApprovePostRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
-                $account = $this->route('post')->account;
+                $post = $this->route('post');
+
+                $account = $post instanceof Post ? $post->account : null;
 
                 if (! $account || ! $account->status->isPublishable()) {
                     $validator->errors()->add(

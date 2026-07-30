@@ -15,15 +15,15 @@ final readonly class PageElement
     ) {}
 
     /**
-     * @param  array{ref: int|string, role?: string, name?: string, state?: array<string, bool>}  $data
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {
         return new self(
-            ref: (int) $data['ref'],
+            ref: (int) ($data['ref'] ?? 0),
             role: (string) ($data['role'] ?? 'generic'),
             name: (string) ($data['name'] ?? ''),
-            state: $data['state'] ?? [],
+            state: is_array($data['state'] ?? null) ? $data['state'] : [],
         );
     }
 

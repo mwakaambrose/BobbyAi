@@ -4,14 +4,32 @@ namespace App\Models;
 
 use App\Enums\RunMode;
 use App\Enums\RunStatus;
+use Carbon\CarbonInterface;
+use Database\Factories\AgentRunFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property int $post_id
+ * @property int|null $social_account_id
+ * @property RunStatus $status
+ * @property RunMode $mode
+ * @property array{allowed_host: string, approved_body: string, allowed_roles: array<string>, step_budget: int} $contract
+ * @property int $step_count
+ * @property string|null $failure_reason
+ * @property CarbonInterface|null $started_at
+ * @property CarbonInterface|null $finished_at
+ * @property-read Post $post
+ * @property-read SocialAccount|null $account
+ * @property-read Collection<int, AgentStep> $steps
+ */
 class AgentRun extends Model
 {
-    /** @use HasFactory<\Database\Factories\AgentRunFactory> */
+    /** @use HasFactory<AgentRunFactory> */
     use HasFactory;
 
     protected $guarded = [];

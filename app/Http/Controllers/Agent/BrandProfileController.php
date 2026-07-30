@@ -22,9 +22,9 @@ class BrandProfileController extends Controller
             'brand' => [
                 'voice' => $brand?->voice,
                 'audience' => $brand?->audience,
-                'topics' => $brand?->topics ?? [],
-                'bannedTerms' => $brand?->banned_terms ?? [],
-                'examples' => $brand?->examples ?? [],
+                'topics' => $brand->topics ?? [],
+                'bannedTerms' => $brand->banned_terms ?? [],
+                'examples' => $brand->examples ?? [],
             ],
         ]);
     }

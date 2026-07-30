@@ -23,6 +23,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ * @property-read BrandProfile|null $brandProfile
+ * @property-read Collection<int, SocialAccount> $socialAccounts
+ * @property-read Collection<int, Post> $posts
  * @property-read Collection<int, TeamInvitation> $invitations
  * @property-read Collection<int, Membership> $memberships
  * @property-read Collection<int, User> $members

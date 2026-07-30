@@ -11,7 +11,7 @@ use App\Ai\Agents\PublishVerifierAgent;
 use InvalidArgumentException;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Files\Base64Image;
-use Laravel\Ai\Responses\AgentResponse;
+use Laravel\Ai\Responses\StructuredAgentResponse;
 
 /**
  * Turns an observation into the next proposed action, and decides whether a
@@ -41,7 +41,7 @@ final class ActionPlanner
 
         foreach ([$prompt, $reminder] as $attempt) {
             try {
-                return Action::fromArray($this->prompt($this->planner, $attempt, $observation)->toArray());
+                return Action::fromArray($this->prompt($this->planner, $attempt, $observation));
             } catch (InvalidArgumentException $exception) {
                 $failure = $exception;
             }
@@ -62,7 +62,7 @@ final class ActionPlanner
             $contract->approvedBody,
             'The page now shows:',
             $observation->toPromptText(),
-        ]), $observation)->toArray();
+        ]), $observation);
 
         return [
             'published' => (bool) ($response['published'] ?? false),
@@ -90,19 +90,23 @@ final class ActionPlanner
 
     /**
      * Prompt an agent, attaching the screenshot when perception allows it.
+     *
+     * @return array<string, mixed>
      */
-    private function prompt(Agent $agent, string $prompt, Observation $observation): AgentResponse
+    private function prompt(Agent $agent, string $prompt, Observation $observation): array
     {
         $attachments = config('agent.perception') === 'marks' && $observation->screenshot !== null
             ? [new Base64Image($observation->screenshot, 'image/png')]
             : [];
 
-        return $agent->prompt(
+        $response = $agent->prompt(
             $prompt,
             attachments: $attachments,
             provider: config('agent.provider'),
             model: config('agent.model'),
             timeout: config('agent.inference_timeout'),
         );
+
+        return $response instanceof StructuredAgentResponse ? $response->toArray() : [];
     }
 }
