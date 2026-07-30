@@ -1,0 +1,12 @@
+{
+    "name": "bobbyai-browser-sidecar",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "start": "node server.mjs",
+        "test": "node --test"
+    },
+    "dependencies": {
+        "playwright": "^1.50.0"
+    }
+}

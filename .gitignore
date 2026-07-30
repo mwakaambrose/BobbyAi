@@ -27,3 +27,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+/browser/node_modules
+/storage/app/private/browser-profiles
