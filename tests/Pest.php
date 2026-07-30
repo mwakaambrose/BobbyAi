@@ -48,3 +48,19 @@ function something()
 {
     // ..
 }
+
+/**
+ * Create a user who owns, and is currently switched into, a fresh team.
+ *
+ * @return array{0: \App\Models\User, 1: \App\Models\Team}
+ */
+function teamUser(): array
+{
+    $user = App\Models\User::factory()->create();
+    $team = App\Models\Team::factory()->create();
+
+    $team->members()->attach($user, ['role' => App\Enums\TeamRole::Owner->value]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+
+    return [$user->fresh(), $team];
+}
