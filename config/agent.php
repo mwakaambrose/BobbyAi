@@ -38,12 +38,21 @@ return [
     | the timeouts bound how long any single browser action or model call may
     | take. Local inference is slow, so it is given the most generous budget.
     |
+    | Measured against gemma4:12b on Apple silicon: a planning call with a
+    | screenshot attached takes around 40 seconds, and a three draft
+    | copywriting call around 180. The run timeout must cover a full step cap
+    | of planning calls plus their browser actions, so it is set well above
+    | the length of a typical run, which finishes in about five steps.
+    |
+    | The queue connection's "retry_after" must stay above the run timeout, or
+    | a run still in progress is handed to a second worker.
+    |
     */
 
     'step_cap' => (int) env('AGENT_STEP_CAP', 18),
-    'run_timeout' => (int) env('AGENT_RUN_TIMEOUT', 300),
+    'run_timeout' => (int) env('AGENT_RUN_TIMEOUT', 1800),
     'browser_timeout' => (int) env('AGENT_BROWSER_TIMEOUT', 20),
-    'inference_timeout' => (int) env('AGENT_INFERENCE_TIMEOUT', 60),
+    'inference_timeout' => (int) env('AGENT_INFERENCE_TIMEOUT', 300),
 
     /*
     |--------------------------------------------------------------------------

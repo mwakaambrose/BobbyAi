@@ -12,7 +12,7 @@ export function BoardColumn({ label, status, posts, teamSlug }: Props) {
     const live = status === 'publishing' && posts.length > 0;
 
     return (
-        <section className="flex w-72 shrink-0 flex-col gap-3">
+        <section className="flex min-w-44 flex-1 basis-0 flex-col gap-3">
             <header className="flex items-center gap-2 px-1">
                 <h2 className="text-sm font-medium">{label}</h2>
                 <span
@@ -25,7 +25,7 @@ export function BoardColumn({ label, status, posts, teamSlug }: Props) {
             </header>
 
             <div
-                className={`flex flex-1 flex-col gap-2 rounded-xl border border-dashed p-2 transition-colors ${
+                className={`flex min-h-28 flex-col gap-2 rounded-xl border border-dashed p-2 transition-colors ${
                     live
                         ? 'border-agent/40 bg-agent-muted/30'
                         : 'border-sidebar-border/70 dark:border-sidebar-border'

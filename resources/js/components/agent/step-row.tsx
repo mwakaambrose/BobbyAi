@@ -54,6 +54,12 @@ export function StepRow({ step, last = false }: { step: StepData; last?: boolean
                 </span>
             </button>
 
+            {(denied || errored) && !open && (
+                <p className="pb-2 pr-2 font-mono text-xs text-balance text-gate">
+                    {step.gate_reason ?? step.error}
+                </p>
+            )}
+
             {open && (
                 <div className="space-y-1 pb-2 pr-2 text-xs leading-relaxed">
                     {step.reasoning && (

@@ -1,10 +1,9 @@
 import { Form, Head, usePage, usePoll } from '@inertiajs/react';
 import { PenLine, Plug, Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PostController from '@/actions/App/Http/Controllers/Agent/PostController';
 import { BoardColumn } from '@/components/agent/board-column';
 import { EmptyState } from '@/components/agent/empty-state';
-import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,18 +36,32 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
     const publishing = columns.find((column) => column.status === 'publishing');
     const isLive = Boolean(publishing && publishing.posts.length > 0);
 
-    usePoll(isLive ? 3000 : 0);
+    // A zero interval polls as fast as the event loop allows, so the poll is
+    // always created with a real interval and started only while a run is live.
+    const { start, stop } = usePoll(3000, {}, { autoStart: false });
+
+    useEffect(() => {
+        if (isLive) {
+            start();
+        } else {
+            stop();
+        }
+
+        return stop;
+    }, [isLive, start, stop]);
 
     return (
         <>
             <Head title="Studio" />
 
             <div className="flex h-full flex-col gap-6 p-4">
-                <div className="flex flex-wrap items-end justify-between gap-4">
-                    <Heading
-                        title="Studio"
-                        description="Every post, and exactly where the agent has taken it."
-                    />
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="space-y-0.5">
+                        <h1 className="text-xl font-semibold tracking-tight">Studio</h1>
+                        <p className="text-sm text-muted-foreground">
+                            Every post, and exactly where the agent has taken it.
+                        </p>
+                    </div>
 
                     <Dialog open={composing} onOpenChange={setComposing}>
                         <DialogTrigger asChild>
@@ -121,7 +134,7 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
                         </Button>
                     </EmptyState>
                 ) : (
-                    <div className="flex flex-1 gap-4 overflow-x-auto pb-2">
+                    <div className="flex gap-3 overflow-x-auto pb-2">
                         {columns.map((column) => (
                             <BoardColumn key={column.status} teamSlug={teamSlug} {...column} />
                         ))}

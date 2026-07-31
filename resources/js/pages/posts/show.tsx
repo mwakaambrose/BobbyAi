@@ -1,6 +1,6 @@
 import { Deferred, Form, Head, usePage, usePoll } from '@inertiajs/react';
 import { ExternalLink, Send } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PostApprovalController from '@/actions/App/Http/Controllers/Agent/PostApprovalController';
 import PostMessageController from '@/actions/App/Http/Controllers/Agent/PostMessageController';
 import { DraftCard } from '@/components/agent/draft-card';
@@ -33,7 +33,19 @@ export default function PostWorkspace({ post, drafts, messages, run, steps }: Pr
 
     const active = run?.status === 'queued' || run?.status === 'running';
 
-    usePoll(active ? 1500 : 0, { only: ['run', 'steps', 'post'] });
+    // A zero interval polls as fast as the event loop allows, so the poll is
+    // always created with a real interval and started only while a run is live.
+    const { start, stop } = usePoll(1500, { only: ['run', 'steps', 'post'] }, { autoStart: false });
+
+    useEffect(() => {
+        if (active) {
+            start();
+        } else {
+            stop();
+        }
+
+        return stop;
+    }, [active, start, stop]);
 
     const selectDraft = (draft: DraftData) => {
         setSelected(draft);
@@ -46,6 +58,28 @@ export default function PostWorkspace({ post, drafts, messages, run, steps }: Pr
 
             <div className="grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2">
                 <section className="flex min-h-0 flex-col gap-6 overflow-y-auto rounded-xl border p-5">
+                    {messages.length === 0 && (
+                        <div className="space-y-2">
+                            <p className="font-mono text-[11px] tracking-wide text-muted-foreground uppercase">
+                                brief
+                            </p>
+                            <p className="rounded-lg bg-muted px-3 py-2 text-sm leading-relaxed">
+                                {post.brief}
+                            </p>
+                        </div>
+                    )}
+
+                    {post.approved_body && (
+                        <div className="space-y-2">
+                            <p className="font-mono text-[11px] tracking-wide text-muted-foreground uppercase">
+                                approved
+                            </p>
+                            <p className="rounded-lg border border-agent/40 bg-agent-muted px-3 py-2 text-sm leading-relaxed">
+                                {post.approved_body}
+                            </p>
+                        </div>
+                    )}
+
                     {messages.map((message) => (
                         <ThreadMessage key={message.id} message={message}>
                             {message.kind === 'drafts' && (
