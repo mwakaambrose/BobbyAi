@@ -1,6 +1,10 @@
 <?php
 
+use App\Enums\AccountStatus;
+use App\Enums\PostStatus;
 use App\Enums\TeamRole;
+use App\Models\Post;
+use App\Models\SocialAccount;
 use App\Models\Team;
 use App\Models\TeamInvitation;
 use App\Models\User;
@@ -132,4 +136,46 @@ test('dashboard does not include or delete other users invitations', function ()
     $this->assertDatabaseHas('team_invitations', [
         'id' => $invitation->id,
     ]);
+});
+
+test('dashboard summarises the current team pipeline', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+
+    Post::factory()->count(2)->for($team)->create(['author_id' => $user->id, 'status' => PostStatus::Approved]);
+    Post::factory()->for($team)->create(['author_id' => $user->id, 'status' => PostStatus::Published]);
+    SocialAccount::factory()->for($team)->create(['status' => AccountStatus::Connected]);
+    SocialAccount::factory()->for($team)->create(['status' => AccountStatus::Expired]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('dashboard')
+        ->where('overview.awaitingApproval', 2)
+        ->where('overview.published', 1)
+        ->where('overview.activeRuns', 0)
+        ->where('overview.accounts.connected', 1)
+        ->where('overview.accounts.total', 2)
+        ->where('overview.teamSlug', $team->slug),
+    );
+});
+
+test('dashboard overview ignores other teams posts', function () {
+    $user = User::factory()->create();
+    $otherTeam = Team::factory()->create();
+
+    Post::factory()->count(3)->for($otherTeam)->create(['author_id' => $user->id, 'status' => PostStatus::Approved]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('dashboard')
+        ->where('overview.awaitingApproval', 0),
+    );
 });
