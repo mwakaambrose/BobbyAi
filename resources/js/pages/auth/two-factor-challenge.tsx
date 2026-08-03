@@ -77,7 +77,7 @@ export default function TwoFactorChallenge() {
                                 </>
                             ) : (
                                 <div className="flex flex-col items-center justify-center space-y-3 text-center">
-                                    <div className="flex w-full items-center justify-center">
+                                    <div className="flex w-full items-center justify-center rounded-xl bg-card p-4 shadow-xs">
                                         <InputOTP
                                             name="code"
                                             maxLength={OTP_MAX_LENGTH}
@@ -86,6 +86,7 @@ export default function TwoFactorChallenge() {
                                             disabled={processing}
                                             pattern={REGEXP_ONLY_DIGITS}
                                             autoFocus
+                                            className="font-mono"
                                         >
                                             <InputOTPGroup>
                                                 {Array.from(
@@ -116,7 +117,7 @@ export default function TwoFactorChallenge() {
                                 <span>or you can </span>
                                 <button
                                     type="button"
-                                    className="cursor-pointer text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                                    className="cursor-pointer text-foreground underline decoration-muted-foreground/40 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current!"
                                     onClick={() =>
                                         toggleRecoveryMode(clearErrors)
                                     }

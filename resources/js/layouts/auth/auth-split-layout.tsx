@@ -12,26 +12,44 @@ export default function AuthSplitLayout({
 
     return (
         <div className="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
-            <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-                <div className="absolute inset-0 bg-zinc-900" />
+            <div className="relative hidden h-full flex-col justify-between bg-sidebar p-10 lg:flex">
                 <Link
                     href={home()}
-                    className="relative z-20 flex items-center text-lg font-medium"
+                    className="relative z-20 flex items-center gap-2.5"
                 >
-                    <AppLogoIcon className="mr-2 size-8 fill-current text-white" />
-                    {name}
+                    <span className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                        <AppLogoIcon className="size-5 fill-current" />
+                    </span>
+                    <span className="font-serif text-lg font-medium tracking-[-0.01em]">
+                        {name}
+                    </span>
                 </Link>
+
+                <blockquote className="relative z-20 max-w-md space-y-2">
+                    <p className="font-serif text-xl leading-relaxed text-balance italic">
+                        Nothing reaches LinkedIn until you approve the exact
+                        words.
+                    </p>
+                    <footer className="font-mono text-[11px] text-muted-foreground">
+                        The approval gate, always on
+                    </footer>
+                </blockquote>
             </div>
+
             <div className="w-full lg:p-8">
                 <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
                     <Link
                         href={home()}
                         className="relative z-20 flex items-center justify-center lg:hidden"
                     >
-                        <AppLogoIcon className="h-10 fill-current text-black sm:h-12" />
+                        <span className="flex aspect-square size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                            <AppLogoIcon className="size-6 fill-current" />
+                        </span>
                     </Link>
                     <div className="flex flex-col items-start gap-2 text-left sm:items-center sm:text-center">
-                        <h1 className="text-xl font-medium">{title}</h1>
+                        <h1 className="font-serif text-2xl font-medium tracking-[-0.01em]">
+                            {title}
+                        </h1>
                         <p className="text-sm text-balance text-muted-foreground">
                             {description}
                         </p>
