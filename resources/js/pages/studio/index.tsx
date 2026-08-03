@@ -5,6 +5,7 @@ import PostController from '@/actions/App/Http/Controllers/Agent/PostController'
 import { BoardColumn } from '@/components/agent/board-column';
 import { EmptyState } from '@/components/agent/empty-state';
 import InputError from '@/components/input-error';
+import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -55,14 +56,10 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
             <Head title="Studio" />
 
             <div className="flex h-full flex-col gap-6 p-4">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="space-y-0.5">
-                        <h1 className="text-xl font-semibold tracking-tight">Studio</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Every post, and exactly where the agent has taken it.
-                        </p>
-                    </div>
-
+                <PageHeader
+                    title="Studio"
+                    description="Every post, and exactly where the agent has taken it."
+                >
                     <Dialog open={composing} onOpenChange={setComposing}>
                         <DialogTrigger asChild>
                             <Button disabled={accounts.length === 0}>
@@ -97,7 +94,7 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
                                                 rows={5}
                                                 autoFocus
                                                 placeholder="Announce Growth Savings. Warm, no jargon, mention that members asked for it."
-                                                className="min-h-32 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm leading-relaxed shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                                                className="min-h-32 w-full rounded-lg border border-input bg-card px-3 py-2 text-sm leading-relaxed shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
                                             />
                                             <InputError message={errors.brief} />
                                         </div>
@@ -111,7 +108,7 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
                             </Form>
                         </DialogContent>
                     </Dialog>
-                </div>
+                </PageHeader>
 
                 {accounts.length === 0 ? (
                     <EmptyState
@@ -134,7 +131,7 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
                         </Button>
                     </EmptyState>
                 ) : (
-                    <div className="flex gap-3 overflow-x-auto pb-2">
+                    <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2">
                         {columns.map((column) => (
                             <BoardColumn key={column.status} teamSlug={teamSlug} {...column} />
                         ))}

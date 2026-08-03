@@ -36,9 +36,11 @@ export function PostCard({ post, teamSlug }: Props) {
     return (
         <Link
             href={show([teamSlug, post.id])}
-            className="group block rounded-lg border bg-card p-3 transition-colors hover:border-agent/40 hover:bg-accent/40 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+            className="group block rounded-lg border border-border bg-card p-3 shadow-xs transition-[color,box-shadow,border-color] hover:border-agent/40 hover:shadow-sm focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:outline-none"
         >
-            <p className="line-clamp-4 text-sm leading-relaxed">{post.body ?? post.brief}</p>
+            <p className="line-clamp-4 text-sm leading-relaxed text-card-foreground">
+                {post.body ?? post.brief}
+            </p>
 
             <div className="mt-3 flex items-center justify-between font-mono text-[11px] text-muted-foreground">
                 <span>{post.updatedAt}</span>
