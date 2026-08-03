@@ -2,7 +2,9 @@
 
 use App\Enums\AccountStatus;
 use App\Enums\PostStatus;
+use App\Enums\RunStatus;
 use App\Enums\TeamRole;
+use App\Models\AgentRun;
 use App\Models\Post;
 use App\Models\SocialAccount;
 use App\Models\Team;
@@ -177,5 +179,33 @@ test('dashboard overview ignores other teams posts', function () {
     $response->assertInertia(fn (Assert $page) => $page
         ->component('dashboard')
         ->where('overview.awaitingApproval', 0),
+    );
+});
+
+test('dashboard counts only queued and running runs for the current team', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $otherTeam = Team::factory()->create();
+
+    $queuedPost = Post::factory()->for($team)->create(['author_id' => $user->id]);
+    $runningPost = Post::factory()->for($team)->create(['author_id' => $user->id]);
+    $publishedPost = Post::factory()->for($team)->create(['author_id' => $user->id]);
+    $failedPost = Post::factory()->for($team)->create(['author_id' => $user->id]);
+    $otherTeamPost = Post::factory()->for($otherTeam)->create(['author_id' => $user->id]);
+
+    AgentRun::factory()->for($queuedPost, 'post')->create(['status' => RunStatus::Queued]);
+    AgentRun::factory()->for($runningPost, 'post')->create(['status' => RunStatus::Running]);
+    AgentRun::factory()->for($publishedPost, 'post')->create(['status' => RunStatus::Published]);
+    AgentRun::factory()->for($failedPost, 'post')->create(['status' => RunStatus::Failed]);
+    AgentRun::factory()->for($otherTeamPost, 'post')->create(['status' => RunStatus::Running]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('dashboard')
+        ->where('overview.activeRuns', 2),
     );
 });
