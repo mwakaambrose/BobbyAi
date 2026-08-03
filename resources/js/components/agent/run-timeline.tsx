@@ -1,15 +1,16 @@
 import { Form } from '@inertiajs/react';
 import RunController from '@/actions/App/Http/Controllers/Agent/RunController';
 import { StepRow } from '@/components/agent/step-row';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { RunData, StepData } from '@/types/agent';
 
-const TONE: Record<RunData['status'], string> = {
-    queued: 'text-muted-foreground',
-    running: 'text-agent',
-    published: 'text-verified',
-    failed: 'text-destructive',
-    aborted: 'text-gate',
+const STATUS_VARIANT: Record<RunData['status'], 'gate' | 'verified' | 'live'> = {
+    queued: 'live',
+    running: 'live',
+    published: 'verified',
+    failed: 'gate',
+    aborted: 'gate',
 };
 
 type Props = {
@@ -24,11 +25,12 @@ export function RunTimeline({ run, steps, teamSlug }: Props) {
     return (
         <div className="space-y-4">
             <header className="flex items-center justify-between gap-2">
-                <p className="font-mono text-xs">
-                    <span className="text-muted-foreground">run {run.id} · </span>
-                    <span className={TONE[run.status]}>{run.status}</span>
-                    <span className="text-muted-foreground"> · {run.step_count} steps</span>
-                </p>
+                <div className="flex items-center gap-2">
+                    <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+                        run {run.id} · {run.step_count} steps
+                    </span>
+                    <Badge variant={STATUS_VARIANT[run.status]}>{run.status}</Badge>
+                </div>
 
                 {active && (
                     <Form
@@ -44,7 +46,7 @@ export function RunTimeline({ run, steps, teamSlug }: Props) {
                 )}
             </header>
 
-            <ol className="rounded-xl border bg-card px-3 py-3">
+            <ol className="rounded-xl border bg-card px-3 py-3 shadow-xs">
                 {steps.map((step, index) => (
                     <StepRow key={step.id} step={step} last={index === steps.length - 1} />
                 ))}

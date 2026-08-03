@@ -41,7 +41,7 @@ export function StepRow({ step, last = false }: { step: StepData; last?: boolean
                     aria-hidden
                     className={`absolute left-1 top-2 size-2.5 rounded-full border-2 ${node}`}
                 />
-                <span className="tabular-nums text-muted-foreground">
+                <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
                     {String(step.index).padStart(2, '0')}
                 </span>
                 <span className="truncate">
@@ -49,7 +49,7 @@ export function StepRow({ step, last = false }: { step: StepData; last?: boolean
                         ? `${step.action.action}${step.action.ref ? ` #${step.action.ref}` : ''}`
                         : step.phase}
                 </span>
-                <span className="ml-auto shrink-0 tabular-nums text-muted-foreground">
+                <span className="ml-auto shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
                     {step.latency_ms ? `${step.latency_ms}ms` : ''}
                 </span>
             </button>

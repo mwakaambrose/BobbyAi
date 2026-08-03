@@ -57,7 +57,7 @@ export default function PostWorkspace({ post, drafts, messages, run, steps }: Pr
             <Head title="Post" />
 
             <div className="grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2">
-                <section className="flex min-h-0 flex-col gap-6 overflow-y-auto rounded-xl border p-5">
+                <section className="flex min-h-0 flex-col gap-6 overflow-y-auto rounded-xl border bg-card p-5 shadow-xs">
                     {messages.length === 0 && (
                         <div className="space-y-2">
                             <p className="font-mono text-[11px] tracking-wide text-muted-foreground uppercase">
@@ -165,12 +165,12 @@ export default function PostWorkspace({ post, drafts, messages, run, steps }: Pr
                     )}
                 </section>
 
-                <section className="min-h-0 space-y-4 overflow-y-auto rounded-xl border p-5">
+                <section className="min-h-0 space-y-4 overflow-y-auto rounded-xl border bg-card p-5 shadow-xs">
                     {run ? (
                         <Deferred
                             data="steps"
                             fallback={
-                                <ol className="rounded-xl border bg-card px-3 py-3">
+                                <ol className="rounded-xl border bg-card px-3 py-3 shadow-xs">
                                     <StepSkeleton />
                                     <StepSkeleton />
                                     <StepSkeleton />
