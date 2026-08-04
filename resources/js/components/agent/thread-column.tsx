@@ -53,6 +53,15 @@ export function ThreadColumn({
                             {message.payload?.reason as string}
                         </p>
                     )}
+
+                    {message.kind === 'edit' && (
+                        <div className="space-y-1 rounded-lg border border-border px-3 py-2 text-sm leading-relaxed">
+                            <p className="text-muted-foreground line-through">
+                                {message.payload?.before as string}
+                            </p>
+                            <p>{message.payload?.after as string}</p>
+                        </div>
+                    )}
                 </ThreadMessage>
             ))}
 

@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\MessageKind;
+use App\Enums\MessageRole;
 use App\Enums\PostStatus;
 use App\Enums\RunStatus;
 use App\Models\AgentRun;
@@ -45,4 +47,25 @@ test('the deferred steps load on request', function (): void {
         ->assertOk()
         ->assertJsonCount(2, 'props.steps')
         ->assertJsonPath('props.steps.0.action.action', 'click');
+});
+
+test('an accepted edit reaches the workspace as a thread turn', function (): void {
+    [$user, $team] = teamUser();
+    $post = Post::factory()->create(['team_id' => $team->id]);
+
+    $post->messages()->create([
+        'role' => MessageRole::Agent,
+        'kind' => MessageKind::Edit,
+        'body' => 'Edited one fragment.',
+        'payload' => ['before' => 'the old line', 'after' => 'the new line'],
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('posts.show', [$team->slug, $post]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page): Assert => $page
+            ->component('posts/show')
+            ->where('messages.0.kind', 'edit')
+            ->where('messages.0.payload.after', 'the new line')
+            ->etc());
 });
