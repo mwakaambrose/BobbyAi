@@ -12,6 +12,7 @@ use App\Enums\GateVerdict;
 use App\Enums\PostStatus;
 use App\Enums\RunStatus;
 use App\Enums\StepPhase;
+use App\Events\RunStepRecorded;
 use App\Models\AgentRun;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -36,6 +37,7 @@ final class PublishRunner
         private readonly BrowserDriver $browser,
         private readonly ActionPlanner $planner,
         private readonly PublishPolicy $policy,
+        private readonly StepPresenter $presenter,
     ) {}
 
     /**
@@ -172,7 +174,7 @@ final class PublishRunner
         ?string $error = null,
         ?string $reasoning = null,
     ): void {
-        $run->steps()->create([
+        $step = $run->steps()->create([
             'index' => $this->stepIndex,
             'phase' => $phase,
             'action' => $action?->toArray(),
@@ -191,6 +193,13 @@ final class PublishRunner
         $this->stepIndex++;
 
         $run->forceFill(['step_count' => $this->stepIndex])->save();
+
+        RunStepRecorded::dispatch(
+            $run->post_id,
+            $run->id,
+            $run->status->value,
+            $this->presenter->toArray($step),
+        );
     }
 
     /**

@@ -56,12 +56,13 @@ export type StepData = {
     index: number;
     phase: 'observe' | 'think' | 'gate' | 'act' | 'verify';
     action: { action: string; ref: number | null; why: string } | null;
+    narration: string;
     reasoning: string | null;
     gate_decision: 'allowed' | 'denied' | null;
     gate_reason: string | null;
     latency_ms: number | null;
     error: string | null;
-    screenshot_path?: string | null;
+    screenshot_path: string | null;
 };
 
 export type RunData = {

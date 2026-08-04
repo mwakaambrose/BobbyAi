@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Agent;
 
+use App\Agent\StepPresenter;
 use App\Enums\PostStatus;
 use App\Enums\RunStatus;
 use App\Http\Controllers\Controller;
@@ -38,7 +39,7 @@ class RunController extends Controller
     /**
      * Replay a single run step by step.
      */
-    public function show(Request $request, string $currentTeam, AgentRun $run): Response
+    public function show(Request $request, string $currentTeam, AgentRun $run, StepPresenter $presenter): Response
     {
         $this->authorizeRun($request, $run);
 
@@ -50,9 +51,7 @@ class RunController extends Controller
                 'contract' => $run->contract,
                 'postId' => $run->post_id,
             ],
-            'steps' => Inertia::defer(fn (): array => $run->steps()->get([
-                'id', 'index', 'phase', 'action', 'reasoning', 'gate_decision', 'gate_reason', 'latency_ms', 'error', 'screenshot_path',
-            ])->all()),
+            'steps' => Inertia::defer(fn (): array => $run->steps()->get()->map($presenter->toArray(...))->all()),
         ]);
     }
 

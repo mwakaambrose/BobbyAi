@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Agent;
 
+use App\Agent\StepPresenter;
 use App\Enums\MessageKind;
 use App\Enums\MessageRole;
 use App\Enums\PostStatus;
@@ -45,7 +46,7 @@ class PostController extends Controller
     /**
      * Show the post workspace.
      */
-    public function show(Request $request, string $currentTeam, Post $post): Response
+    public function show(Request $request, string $currentTeam, Post $post, StepPresenter $presenter): Response
     {
         $this->authorizeTeam($request, $post);
 
@@ -57,7 +58,7 @@ class PostController extends Controller
             'messages' => $post->messages()->get(['id', 'role', 'kind', 'body', 'payload', 'created_at']),
             'run' => $run?->only(['id', 'status', 'mode', 'step_count', 'failure_reason']),
             'steps' => Inertia::defer(fn (): array => $run
-                ? $run->steps()->get(['id', 'index', 'phase', 'action', 'reasoning', 'gate_decision', 'gate_reason', 'latency_ms', 'error'])->all()
+                ? $run->steps()->get()->map($presenter->toArray(...))->all()
                 : []),
         ]);
     }
