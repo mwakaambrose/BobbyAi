@@ -42,8 +42,10 @@ Out, each its own brainstorm:
 
 ### Interaction
 
-Select a span of the draft. A prompt bar appears anchored to the selection; you
-say what is wrong and submit. The box switches to a read-only proposal showing
+Select a span of the draft. A prompt bar appears directly beneath the editor
+quoting the selected text; you say what is wrong and submit. (It is not floated
+over the caret: positioning against a textarea means mirroring it into a hidden
+measuring div, which is a lot of fragile code for a positional nicety.) The box switches to a read-only proposal showing
 `[before][old struck][new][after]`, the replacement streaming in. The text
 around the span does not move. Then Accept or Reject.
 
@@ -56,17 +58,19 @@ records the exchange in the thread.
 
 `POST /{team}/posts/{post}/refinements` — `PostRefinementController@store`.
 
-| Field             | Rule                                            |
-| ----------------- | ----------------------------------------------- |
-| `body`            | required, string — the current editor buffer    |
-| `selection_start` | required, integer, `>= 0`, `< strlen(body)`     |
-| `selection_end`   | required, integer, `> selection_start`, `<= strlen(body)` |
-| `instruction`     | required, string, max 500                       |
+| Field         | Rule                                              |
+| ------------- | ------------------------------------------------- |
+| `before`      | present, string — buffer text left of the selection |
+| `selection`   | required, string, max 1200 — the span to rewrite   |
+| `after`       | present, string — buffer text right of the selection |
+| `instruction` | required, string, min 2, max 500                   |
 
-`body` is sent rather than read from the draft because the buffer may hold the
-user's own typing, and the offsets are meaningless against anything else.
-Offsets are validated server-side against the submitted body and 422 when out of
-range.
+The buffer is sent as three segments rather than as a body plus integer offsets.
+`selectionStart` in the browser is a UTF-16 code unit index while PHP's
+`mb_substr` counts codepoints, so any post containing an emoji would slice at
+the wrong place. Splitting client-side removes the encoding mismatch entirely:
+the server only ever concatenates. The buffer is sent rather than read from the
+draft because it may hold the user's own typing.
 
 The controller queues `RefineDraftSpan` and returns. Team ownership is asserted
 as in `PostMessageController`.
@@ -88,6 +92,13 @@ mirroring `DraftChunk` and broadcast with `ShouldBroadcastNow`:
 No new channel and no new authorization: the workspace is already subscribed to
 `posts.{id}`.
 
+Because three features now share one channel, exactly one place may leave it.
+`usePostStream` currently calls `echo().leave()` on cleanup, which would tear
+the channel out from under the other two the moment drafting finishes. Channel
+lifecycle moves up to the page: a `usePostChannel` hook in `posts/show.tsx`
+owns joining and leaving, and every feature hook only adds and removes its own
+listeners with `stopListening`.
+
 ### Accepting
 
 `POST /{team}/posts/{post}/refinements/accept` — `PostRefinementController@accept`,
@@ -95,7 +106,8 @@ carrying the instruction, the replaced text, the replacement, and the offset.
 It writes two `PostMessage` rows:
 
 - `role: user`, `kind: text`, body = the instruction.
-- `role: agent`, `kind: edit`, `payload: {before, after, start}`.
+- `role: agent`, `kind: edit`, `payload: {before, after}` — the replaced text
+  and its replacement.
 
 `MessageKind::Edit` is new. `ThreadMessage` grows an `edit` case rendering the
 before/after pair compactly.
@@ -128,7 +140,7 @@ lines.
 | Case                          | Behaviour                                             |
 | ----------------------------- | ----------------------------------------------------- |
 | Second request while pending  | Blocked; the editor is read-only during a proposal    |
-| Offsets out of range          | 422 before the job is queued                          |
+| Empty or missing selection    | 422 before the job is queued                          |
 | Job fails                     | `refine.failed` renders inline, editor restored       |
 | Socket never connects         | 30s timeout, inline retry — nothing was persisted     |
 | Draft still streaming         | The prompt bar is unavailable while `isDrafting`      |
@@ -177,6 +189,12 @@ socket degrades to today's behaviour rather than an empty panel.
 
 An action with no resolvable element falls back to the bare verb. A denied step
 is narrated as the attempt plus the gate reason.
+
+Naming the element requires one schema change: `agent_steps` stores only the
+numeric `ref`, not what it pointed at, and the observation that resolves it is
+gone by replay time. A nullable `target` column is added and filled in
+`PublishRunner::record()` via `Observation::element($ref)?->name`, which is
+already available there. Without it the narration can only say "element 12".
 
 The narrator is backend, not frontend, so the live theatre and the replay
 produce identical text from one tested function.
