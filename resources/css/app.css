@@ -31,9 +31,17 @@
     --text-title--letter-spacing: -0.018em;
     --text-title--font-weight: 600;
 
+    /* The front door speaks at a different volume to the console pages. One
+       display size and one softer radius carry it; everything else is shared. */
+    --text-display: 1.9rem;
+    --text-display--line-height: 1.12;
+    --text-display--letter-spacing: -0.026em;
+    --text-display--font-weight: 600;
+
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
+    --radius-xl: calc(var(--radius) + 6px);
 
     /* Depth is built in layers: a tight contact shadow that anchors an edge,
        then a wider ambient one that lifts it off the page. Both stay low in

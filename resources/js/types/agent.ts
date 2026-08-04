@@ -79,3 +79,18 @@ export type BoardPost = {
     updatedAt: string;
     progress: { steps: number; budget: number } | null;
 };
+
+export type Suggestion = {
+    label: string;
+    hint: string;
+    prompt: string | null;
+    href: string | null;
+};
+
+export type HomeStatus = {
+    activeRuns: number;
+    awaitingPublish: number;
+    accountsConnected: number;
+    accountsTotal: number;
+    teamSlug: string;
+};
