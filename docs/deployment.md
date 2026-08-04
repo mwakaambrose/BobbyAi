@@ -120,9 +120,23 @@ cd browser && npx playwright install --with-deps chromium
 Ubuntu 24.04 assumed. Adjust package names to taste.
 
 ```bash
+
+# PHP
+sudo apt update
+sudo apt install -y software-properties-common ca-certificates lsb-release apt-transport-https
+sudo add-apt-repository ppa:ondrej/php
+
 sudo apt update
 sudo apt install -y nginx php8.4-fpm php8.4-cli php8.4-sqlite3 php8.4-mbstring \
     php8.4-xml php8.4-curl php8.4-zip php8.4-intl unzip git sqlite3
+
+# MariaDB
+sudo apt update
+sudo apt install mariadb-server mariadb-client -y
+sudo systemctl enable --now mariadb
+sudo systemctl status mariadb
+
+sudo mariadb-secure-installation
 
 # Node 22
 curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
