@@ -20,7 +20,7 @@ export function EmptyState({
     children,
 }: Props) {
     return (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-14 text-center">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border px-6 py-14 text-center">
             <div className="flex size-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground shadow-xs">
                 <Icon className="size-4" aria-hidden />
             </div>

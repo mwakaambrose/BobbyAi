@@ -53,20 +53,20 @@ export default function RunsIndex({ runs }: Props) {
                         description="Approve a post and every step the agent takes is recorded here, screenshots included."
                     />
                 ) : (
-                    <ul className="divide-y divide-rule border-y border-rule">
+                    <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card shadow-xs">
                         {runs.data.map((run) => (
                             <li key={run.id}>
                                 <Link
                                     href={show([teamSlug, run.id])}
-                                    className="flex items-center gap-4 py-3.5 transition-colors hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:outline-none"
+                                    className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-accent/60 focus-visible:bg-accent/60 focus-visible:outline-none"
                                 >
-                                    <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+                                    <span className="font-mono text-label text-muted-foreground tabular-nums">
                                         {String(run.id).padStart(3, '0')}
                                     </span>
                                     <span className="line-clamp-1 flex-1 text-sm">
                                         {run.brief}
                                     </span>
-                                    <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+                                    <span className="text-label text-muted-foreground tabular-nums">
                                         {run.stepCount} steps
                                     </span>
                                     <Badge

@@ -182,6 +182,79 @@ test('dashboard overview ignores other teams posts', function () {
     );
 });
 
+test('dashboard lists the five most recently touched posts, newest first', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+
+    foreach (range(1, 6) as $index) {
+        Post::factory()->for($team)->create([
+            'author_id' => $user->id,
+            'brief' => "Brief {$index}",
+            'updated_at' => now()->subMinutes(10 - $index),
+        ]);
+    }
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('dashboard')
+        ->has('recentPosts', 5)
+        ->where('recentPosts.0.brief', 'Brief 6')
+        ->where('recentPosts.4.brief', 'Brief 2'),
+    );
+});
+
+test('dashboard recent posts exclude other teams', function () {
+    $user = User::factory()->create();
+    $otherTeam = Team::factory()->create();
+
+    Post::factory()->for($otherTeam)->create(['author_id' => $user->id]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('dashboard')
+        ->has('recentPosts', 0),
+    );
+});
+
+test('dashboard lists recent runs with their post brief and step count', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $otherTeam = Team::factory()->create();
+
+    $post = Post::factory()->for($team)->create([
+        'author_id' => $user->id,
+        'brief' => 'Announce the savings product',
+    ]);
+    $otherPost = Post::factory()->for($otherTeam)->create(['author_id' => $user->id]);
+
+    AgentRun::factory()->for($post, 'post')->create([
+        'status' => RunStatus::Published,
+        'step_count' => 7,
+    ]);
+    AgentRun::factory()->for($otherPost, 'post')->create(['status' => RunStatus::Running]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('dashboard')
+        ->has('recentRuns', 1)
+        ->where('recentRuns.0.brief', 'Announce the savings product')
+        ->where('recentRuns.0.stepCount', 7)
+        ->where('recentRuns.0.status', RunStatus::Published->value),
+    );
+});
+
 test('dashboard counts only queued and running runs for the current team', function () {
     $user = User::factory()->create();
     $team = $user->currentTeam;

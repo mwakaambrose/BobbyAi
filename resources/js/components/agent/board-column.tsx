@@ -41,7 +41,7 @@ export function BoardColumn({ label, status, posts, teamSlug }: Props) {
                 </span>
             </header>
 
-            <div className="flex max-h-[calc(100dvh-17rem)] min-h-32 flex-col gap-2 overflow-y-auto rounded-lg bg-muted/50 p-2">
+            <div className="flex max-h-[calc(100dvh-17rem)] min-h-32 flex-col gap-2 overflow-y-auto rounded-xl bg-muted/60 p-2">
                 {posts.length === 0 ? (
                     <p className="px-1 py-6 text-center text-meta text-muted-foreground">
                         Nothing here yet.
