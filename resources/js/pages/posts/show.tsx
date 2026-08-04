@@ -1,14 +1,11 @@
-import { Deferred, Form, Head, usePage, usePoll } from '@inertiajs/react';
-import { ExternalLink, Send } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import PostApprovalController from '@/actions/App/Http/Controllers/Agent/PostApprovalController';
-import PostMessageController from '@/actions/App/Http/Controllers/Agent/PostMessageController';
-import { DraftCard } from '@/components/agent/draft-card';
-import { PostPreview } from '@/components/agent/post-preview';
+import { Deferred, Head, usePage, usePoll } from '@inertiajs/react';
+import { ExternalLink } from 'lucide-react';
+import { useEffect } from 'react';
+import { DraftCanvas } from '@/components/agent/draft-canvas';
 import { RunTimeline } from '@/components/agent/run-timeline';
 import { StepSkeleton } from '@/components/agent/step-row';
-import { ThreadMessage } from '@/components/agent/thread-message';
-import { Button } from '@/components/ui/button';
+import { ThreadColumn } from '@/components/agent/thread-column';
+import { usePostStream } from '@/hooks/use-post-stream';
 import { studio } from '@/routes';
 import { show } from '@/routes/posts';
 import type {
@@ -36,12 +33,12 @@ export default function PostWorkspace({
 }: Props) {
     const teamSlug = usePage().props.currentTeam?.slug ?? '';
 
-    const [selected, setSelected] = useState<DraftData | null>(
-        drafts[0] ?? null,
-    );
-    const [body, setBody] = useState(
-        post.approved_body ?? drafts[0]?.body ?? '',
-    );
+    // The window between dispatching the drafting job and the agent's turn
+    // being persisted: the last thing in the thread came from the user.
+    const isDrafting =
+        post.status === 'draft' && messages.at(-1)?.role === 'user';
+
+    const { streamed, failed } = usePostStream(post.id, isDrafting);
 
     const active = run?.status === 'queued' || run?.status === 'running';
 
@@ -63,129 +60,20 @@ export default function PostWorkspace({
         return stop;
     }, [active, start, stop]);
 
-    const selectDraft = (draft: DraftData) => {
-        setSelected(draft);
-        setBody(draft.body);
-    };
-
     return (
         <>
             <Head title={truncateBrief(post.brief)} />
 
             <div className="grid h-full grid-cols-1 gap-6 px-6 py-8 md:px-10 lg:grid-cols-2">
-                <section className="flex min-h-0 flex-col gap-6 overflow-y-auto rounded-md border bg-card p-5">
-                    {messages.length === 0 && (
-                        <div className="space-y-2">
-                            <p className="eyebrow">brief</p>
-                            <p className="rounded-lg bg-muted px-3 py-2 text-sm leading-relaxed">
-                                {post.brief}
-                            </p>
-                        </div>
-                    )}
-
-                    {post.approved_body && (
-                        <div className="space-y-2">
-                            <p className="eyebrow">approved</p>
-                            <p className="rounded-lg border border-agent/40 bg-agent-muted px-3 py-2 text-sm leading-relaxed">
-                                {post.approved_body}
-                            </p>
-                        </div>
-                    )}
-
-                    {messages.map((message) => (
-                        <ThreadMessage key={message.id} message={message}>
-                            {message.kind === 'drafts' && (
-                                <div className="space-y-2">
-                                    {drafts.map((draft) => (
-                                        <DraftCard
-                                            key={draft.id}
-                                            draft={draft}
-                                            selected={selected?.id === draft.id}
-                                            onSelect={selectDraft}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </ThreadMessage>
-                    ))}
-
-                    {post.status === 'draft' && (
-                        <div className="mt-auto space-y-5 border-t pt-5">
-                            <Form
-                                {...PostMessageController.store.form({
-                                    current_team: teamSlug,
-                                    post: post.id,
-                                })}
-                                options={{ preserveScroll: true }}
-                                resetOnSuccess
-                                className="flex gap-2"
-                            >
-                                {({ processing }) => (
-                                    <>
-                                        <input
-                                            name="body"
-                                            placeholder="Shorter. Lead with the member story."
-                                            className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-                                        />
-                                        <Button
-                                            size="icon"
-                                            disabled={processing}
-                                            aria-label="Ask for a revision"
-                                        >
-                                            <Send />
-                                        </Button>
-                                    </>
-                                )}
-                            </Form>
-
-                            <Form
-                                {...PostApprovalController.store.form({
-                                    current_team: teamSlug,
-                                    post: post.id,
-                                })}
-                                options={{ preserveScroll: true }}
-                                className="space-y-2"
-                            >
-                                {({ processing, errors }) => (
-                                    <>
-                                        <textarea
-                                            name="body"
-                                            rows={5}
-                                            value={body}
-                                            onChange={(event) =>
-                                                setBody(event.target.value)
-                                            }
-                                            aria-label="The exact text to publish"
-                                            className="min-h-28 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-                                        />
-
-                                        <p className="font-mono text-[11px] text-muted-foreground">
-                                            {body.length} chars · the agent may
-                                            type these words and nothing else
-                                        </p>
-
-                                        {errors.social_account_id && (
-                                            <p className="text-xs text-destructive">
-                                                {errors.social_account_id}
-                                            </p>
-                                        )}
-
-                                        <Button
-                                            type="submit"
-                                            disabled={
-                                                processing ||
-                                                body.trim().length < 2
-                                            }
-                                            className="w-full"
-                                        >
-                                            Approve and publish
-                                        </Button>
-                                    </>
-                                )}
-                            </Form>
-                        </div>
-                    )}
-                </section>
+                <div className="min-h-0 rounded-md border bg-card p-5">
+                    <ThreadColumn
+                        teamSlug={teamSlug}
+                        post={post}
+                        messages={messages}
+                        drafts={drafts}
+                        isDrafting={isDrafting}
+                    />
+                </div>
 
                 <section className="min-h-0 space-y-4 overflow-y-auto rounded-md border bg-card p-5">
                     {run ? (
@@ -206,7 +94,14 @@ export default function PostWorkspace({
                             />
                         </Deferred>
                     ) : (
-                        <PostPreview body={body || post.brief} handle={null} />
+                        <DraftCanvas
+                            teamSlug={teamSlug}
+                            post={post}
+                            drafts={drafts}
+                            streamed={streamed}
+                            failed={failed}
+                            isDrafting={isDrafting}
+                        />
                     )}
 
                     {post.published_url && (

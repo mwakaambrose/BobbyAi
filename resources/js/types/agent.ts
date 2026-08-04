@@ -36,7 +36,7 @@ export type DraftData = {
 export type ThreadMessage = {
     id: number;
     role: 'user' | 'agent';
-    kind: 'text' | 'drafts' | 'run';
+    kind: 'text' | 'drafts' | 'run' | 'error';
     body: string | null;
     payload: Record<string, unknown> | null;
     created_at: string;
