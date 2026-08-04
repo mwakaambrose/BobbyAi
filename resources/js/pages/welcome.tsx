@@ -11,7 +11,9 @@ function Nav() {
     return (
         <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
             <Link href="/" className="flex items-center gap-2">
-                <AppLogoIcon className="size-6 fill-current text-foreground" />
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                    <AppLogoIcon className="size-5 fill-current" />
+                </div>
                 <span className="font-serif text-lg font-medium tracking-[-0.01em]">
                     {usePage().props.name}
                 </span>
@@ -120,8 +122,8 @@ function Footer() {
             <p className="text-sm text-muted-foreground">
                 &copy; {new Date().getFullYear()} {name}
             </p>
-            <div className="flex items-center gap-2">
-                <AppLogoIcon className="size-4 fill-current text-muted-foreground" />
+            <div className="flex aspect-square size-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <AppLogoIcon className="size-3.5 fill-current" />
             </div>
         </footer>
     );
