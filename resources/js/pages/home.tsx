@@ -140,9 +140,11 @@ export default function Home({
                                         <ArrowUp />
                                     </Button>
                                 </div>
-                                {errors.brief && (
+                                {(errors.brief ||
+                                    errors.social_account_id) && (
                                     <p className="mt-2 text-label text-destructive">
-                                        {errors.brief}
+                                        {errors.brief ??
+                                            errors.social_account_id}
                                     </p>
                                 )}
                             </>

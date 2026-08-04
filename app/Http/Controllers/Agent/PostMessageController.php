@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\Agent;
 
-use App\Agent\Copywriter;
 use App\Enums\MessageKind;
 use App\Enums\MessageRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Agent\StorePostMessageRequest;
+use App\Jobs\DraftPostContent;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 
 class PostMessageController extends Controller
 {
     /**
-     * Record a revision request and regenerate the drafts.
+     * Record a revision request and queue a redraft.
      */
-    public function store(StorePostMessageRequest $request, string $currentTeam, Post $post, Copywriter $copywriter): RedirectResponse
+    public function store(StorePostMessageRequest $request, string $currentTeam, Post $post): RedirectResponse
     {
         $team = $request->user()->currentTeam;
 
@@ -27,19 +27,11 @@ class PostMessageController extends Controller
             'body' => $request->validated('body'),
         ]);
 
-        $drafts = $copywriter->draftsFor(
+        DraftPostContent::dispatch(
             $post,
             $request->validated('body'),
-            $team->brandProfile,
             revisionOf: $post->drafts()->first()?->body,
         );
-
-        $post->messages()->create([
-            'role' => MessageRole::Agent,
-            'kind' => MessageKind::Drafts,
-            'body' => __('Updated drafts'),
-            'payload' => ['draft_ids' => $drafts->pluck('id')->all()],
-        ]);
 
         return back();
     }

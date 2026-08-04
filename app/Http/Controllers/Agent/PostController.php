@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Agent;
 
-use App\Agent\Copywriter;
 use App\Enums\MessageKind;
 use App\Enums\MessageRole;
 use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Agent\StorePostRequest;
+use App\Jobs\DraftPostContent;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,9 +17,9 @@ use Inertia\Response;
 class PostController extends Controller
 {
     /**
-     * Create a post from a brief and generate its first drafts.
+     * Create a post from a brief and queue its first draft.
      */
-    public function store(StorePostRequest $request, Copywriter $copywriter): RedirectResponse
+    public function store(StorePostRequest $request): RedirectResponse
     {
         $team = $request->user()->currentTeam;
 
@@ -37,14 +37,7 @@ class PostController extends Controller
             'body' => $post->brief,
         ]);
 
-        $drafts = $copywriter->draftsFor($post, $post->brief, $team->brandProfile);
-
-        $post->messages()->create([
-            'role' => MessageRole::Agent,
-            'kind' => MessageKind::Drafts,
-            'body' => __(':count drafts', ['count' => $drafts->count()]),
-            'payload' => ['draft_ids' => $drafts->pluck('id')->all()],
-        ]);
+        DraftPostContent::dispatch($post, $post->brief);
 
         return to_route('posts.show', [$team->slug, $post]);
     }
