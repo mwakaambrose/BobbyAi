@@ -1,9 +1,13 @@
-import { Form } from '@inertiajs/react';
+import { Form, router } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import PostAlternativeController from '@/actions/App/Http/Controllers/Agent/PostAlternativeController';
 import PostApprovalController from '@/actions/App/Http/Controllers/Agent/PostApprovalController';
+import PostRefinementController from '@/actions/App/Http/Controllers/Agent/PostRefinementController';
+import { DraftEditor } from '@/components/agent/draft-editor';
+import { SpanProposalView } from '@/components/agent/span-proposal';
 import { Button } from '@/components/ui/button';
+import { useSpanRefinement } from '@/hooks/use-span-refinement';
 import type { DraftData, PostSummary } from '@/types/agent';
 
 type Props = {
@@ -51,6 +55,40 @@ export function DraftCanvas({
     const streaming = isDrafting && streamed !== '';
     const shown = streaming ? streamed : body;
 
+    const {
+        proposal,
+        failed: refineFailed,
+        request,
+        reject,
+    } = useSpanRefinement(post.id, teamSlug);
+
+    /**
+     * The splice happens locally; the post only records that it happened, so a
+     * later request arrives with the edit history behind it.
+     */
+    const accept = () => {
+        if (!proposal) {
+            return;
+        }
+
+        setBody(proposal.before + proposal.replacement + proposal.after);
+
+        router.post(
+            PostRefinementController.accept.url({
+                current_team: teamSlug,
+                post: post.id,
+            }),
+            {
+                instruction: proposal.instruction,
+                before: proposal.selection,
+                after: proposal.replacement,
+            },
+            { preserveScroll: true },
+        );
+
+        reject();
+    };
+
     return (
         <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
             <header className="flex items-center justify-between gap-2">
@@ -85,6 +123,10 @@ export function DraftCanvas({
 
             {failed && <p className="text-meta text-destructive">{failed}</p>}
 
+            {refineFailed && (
+                <p className="text-meta text-destructive">{refineFailed}</p>
+            )}
+
             {streaming ? (
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
                     {shown}
@@ -104,16 +146,20 @@ export function DraftCanvas({
                 >
                     {({ processing, errors }) => (
                         <>
-                            <textarea
-                                name="body"
-                                rows={8}
-                                value={body}
-                                onChange={(event) =>
-                                    setBody(event.target.value)
-                                }
-                                aria-label="The exact text to publish"
-                                className="min-h-40 w-full resize-none rounded-xl border border-input bg-transparent px-3 py-2 text-sm leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-                            />
+                            {proposal ? (
+                                <SpanProposalView
+                                    proposal={proposal}
+                                    onAccept={accept}
+                                    onReject={reject}
+                                />
+                            ) : (
+                                <DraftEditor
+                                    body={body}
+                                    onChange={setBody}
+                                    disabled={isDrafting}
+                                    onAsk={request}
+                                />
+                            )}
 
                             <p className="font-mono text-label text-muted-foreground tabular-nums">
                                 {body.length} chars · the agent may type these
@@ -130,7 +176,9 @@ export function DraftCanvas({
                                 <Button
                                     type="submit"
                                     disabled={
-                                        processing || body.trim().length < 2
+                                        processing ||
+                                        proposal !== null ||
+                                        body.trim().length < 2
                                     }
                                     className="w-full"
                                 >
