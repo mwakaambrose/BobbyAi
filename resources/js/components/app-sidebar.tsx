@@ -27,21 +27,29 @@ export function AppSidebar() {
 
     const teamSlug = page.props.currentTeam?.slug;
 
-    const mainNavItems: NavItem[] = [
+    const overviewNavItems: NavItem[] = [
         {
             title: 'Dashboard',
             href: dashboardUrl,
             icon: LayoutGrid,
         },
-        ...(teamSlug
-            ? [
-                  { title: 'Studio', href: studio(teamSlug), icon: PenLine },
-                  { title: 'Runs', href: runsIndex(teamSlug), icon: History },
-                  { title: 'Accounts', href: accountsIndex(teamSlug), icon: Plug },
-                  { title: 'Brand', href: brandEdit(teamSlug), icon: Palette },
-              ]
-            : []),
     ];
+
+    /* The nav splits along the only division that matters day to day: the
+       work you do with the agent, and the setup that shapes what it does. */
+    const workNavItems: NavItem[] = teamSlug
+        ? [
+              { title: 'Studio', href: studio(teamSlug), icon: PenLine },
+              { title: 'Runs', href: runsIndex(teamSlug), icon: History },
+          ]
+        : [];
+
+    const setupNavItems: NavItem[] = teamSlug
+        ? [
+              { title: 'Accounts', href: accountsIndex(teamSlug), icon: Plug },
+              { title: 'Brand', href: brandEdit(teamSlug), icon: Palette },
+          ]
+        : [];
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -62,8 +70,10 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
-                <NavMain items={mainNavItems} />
+            <SidebarContent className="gap-5">
+                <NavMain items={overviewNavItems} />
+                <NavMain items={workNavItems} label="Work" />
+                <NavMain items={setupNavItems} label="Setup" />
             </SidebarContent>
 
             <SidebarFooter>

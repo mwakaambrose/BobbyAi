@@ -16,8 +16,9 @@ export default defineConfig({
                     weights: [400, 500, 600],
                     styles: ['normal', 'italic'],
                 }),
-                bunny('Inter', {
-                    weights: [400, 500, 600],
+                bunny('Instrument Sans', {
+                    weights: [400, 500, 600, 700],
+                    styles: ['normal', 'italic'],
                 }),
                 bunny('JetBrains Mono', {
                     weights: [400, 500],

@@ -8,30 +8,53 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+    /* Instrument Sans carries the interface: slightly narrow, high-waisted, and
+       more opinionated than the system-default grotesques. Fraunces handles
+       display and every number the reader is meant to weigh. */
     --font-sans:
-        'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
 
     --font-serif: 'Fraunces', ui-serif, Georgia, Cambria, serif;
 
     --font-mono:
         'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
+    /* An editorial scale: wide gaps between display sizes, a narrow band of
+       working sizes, and one very small tracked-out size for labels. */
+    --text-eyebrow: 0.6875rem;
+    --text-eyebrow--line-height: 1;
+    --text-eyebrow--letter-spacing: 0.13em;
+    --text-eyebrow--font-weight: 600;
+
+    --text-meta: 0.75rem;
+    --text-meta--line-height: 1.4;
+
+    --text-display: 2rem;
+    --text-display--line-height: 1.1;
+    --text-display--letter-spacing: -0.022em;
+
+    --text-display-lg: 2.75rem;
+    --text-display-lg--line-height: 1.04;
+    --text-display-lg--letter-spacing: -0.028em;
+
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
-    --radius-sm: calc(var(--radius) - 4px);
+    --radius-sm: calc(var(--radius) - 3px);
 
-    --shadow-2xs: 0 1px 0 0 oklch(0.35 0.03 55 / 4%);
-    --shadow-xs: 0 1px 2px 0 oklch(0.35 0.03 55 / 6%);
-    --shadow-sm:
-        0 1px 2px 0 oklch(0.35 0.03 55 / 6%),
-        0 1px 3px 0 oklch(0.35 0.03 55 / 8%);
-    --shadow-md:
-        0 2px 4px -1px oklch(0.35 0.03 55 / 7%),
-        0 4px 10px -2px oklch(0.35 0.03 55 / 10%);
+    /* Surfaces are separated by rules, not elevation. Shadows exist only for
+       things that genuinely float above the page. */
+    --shadow-2xs: 0 0 0 0 transparent;
+    --shadow-xs: 0 0 0 0 transparent;
+    --shadow-sm: 0 0 0 0 transparent;
+    --shadow-md: 0 1px 2px 0 oklch(0.2 0.01 65 / 6%);
     --shadow-lg:
-        0 4px 8px -2px oklch(0.35 0.03 55 / 8%),
-        0 12px 24px -4px oklch(0.35 0.03 55 / 12%);
+        0 8px 20px -6px oklch(0.2 0.01 65 / 12%),
+        0 2px 6px -2px oklch(0.2 0.01 65 / 8%);
+    --shadow-xl:
+        0 24px 48px -12px oklch(0.2 0.01 65 / 18%),
+        0 4px 12px -4px oklch(0.2 0.01 65 / 10%);
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -61,6 +84,11 @@
     --color-input: var(--input);
     --color-ring: var(--ring);
 
+    /* A hairline for dividing content, and a heavier rule for the structural
+       lines that open a section. */
+    --color-rule: var(--rule);
+    --color-rule-strong: var(--rule-strong);
+
     --color-chart-1: var(--chart-1);
     --color-chart-2: var(--chart-2);
     --color-chart-3: var(--chart-3);
@@ -76,9 +104,9 @@
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
 
-    /* Agent activity. The neutral primary of this kit carries no chroma, so
-       these three are the only chromatic signals in the product: live work,
-       a blocked action, and a confirmed publish. */
+    /* Agent activity. The neutrals carry almost no chroma, so these are the
+       only chromatic signals in the product: live work, a blocked action, and
+       a confirmed publish. */
     --color-agent: var(--agent);
     --color-agent-muted: var(--agent-muted);
     --color-gate: var(--gate);
@@ -86,82 +114,89 @@
 }
 
 :root {
-    --background: oklch(0.972 0.006 84);
-    --foreground: oklch(0.22 0.012 55);
-    --card: oklch(0.995 0.003 84);
-    --card-foreground: oklch(0.22 0.012 55);
-    --popover: oklch(0.995 0.003 84);
-    --popover-foreground: oklch(0.22 0.012 55);
-    --primary: oklch(0.55 0.13 38);
-    --primary-foreground: oklch(0.985 0.006 80);
-    --secondary: oklch(0.945 0.008 80);
-    --secondary-foreground: oklch(0.22 0.012 55);
-    --muted: oklch(0.945 0.008 80);
-    --muted-foreground: oklch(0.53 0.014 60);
-    --accent: oklch(0.945 0.008 80);
-    --accent-foreground: oklch(0.22 0.012 55);
-    --destructive: oklch(0.52 0.17 27);
-    --destructive-foreground: oklch(0.52 0.17 27);
-    --border: oklch(0.905 0.008 78);
-    --input: oklch(0.905 0.008 78);
-    --ring: oklch(0.55 0.13 38 / 45%);
-    --chart-1: oklch(0.55 0.13 38);
-    --chart-2: oklch(0.62 0.09 55);
+    /* Paper and ink. The page is a toned stock so that cards can be true
+       white and still read as a separate surface without a shadow. */
+    --background: oklch(0.976 0.004 85);
+    --foreground: oklch(0.175 0.01 65);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.175 0.01 65);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.175 0.01 65);
+    --primary: oklch(0.47 0.155 33);
+    --primary-foreground: oklch(0.985 0.005 80);
+    --secondary: oklch(0.949 0.005 82);
+    --secondary-foreground: oklch(0.175 0.01 65);
+    --muted: oklch(0.949 0.005 82);
+    --muted-foreground: oklch(0.505 0.012 68);
+    --accent: oklch(0.94 0.007 80);
+    --accent-foreground: oklch(0.175 0.01 65);
+    --destructive: oklch(0.5 0.18 27);
+    --destructive-foreground: oklch(0.5 0.18 27);
+    --border: oklch(0.912 0.005 82);
+    --input: oklch(0.895 0.006 82);
+    --ring: oklch(0.47 0.155 33 / 40%);
+    --rule: oklch(0.912 0.005 82);
+    --rule-strong: oklch(0.175 0.01 65);
+    --chart-1: oklch(0.47 0.155 33);
+    --chart-2: oklch(0.6 0.09 55);
     --chart-3: oklch(0.66 0.13 68);
-    --chart-4: oklch(0.56 0.09 152);
-    --chart-5: oklch(0.62 0.03 70);
-    --radius: 0.75rem;
-    --agent: oklch(0.55 0.13 38);
-    --agent-muted: oklch(0.55 0.13 38 / 12%);
-    --gate: oklch(0.66 0.13 68);
-    --verified: oklch(0.56 0.09 152);
-    --sidebar: oklch(0.958 0.008 82);
-    --sidebar-foreground: oklch(0.22 0.012 55);
-    --sidebar-primary: oklch(0.55 0.13 38);
-    --sidebar-primary-foreground: oklch(0.985 0.006 80);
-    --sidebar-accent: oklch(0.925 0.012 76);
-    --sidebar-accent-foreground: oklch(0.22 0.012 55);
-    --sidebar-border: oklch(0.9 0.009 78);
-    --sidebar-ring: oklch(0.55 0.13 38 / 45%);
+    --chart-4: oklch(0.53 0.09 152);
+    --chart-5: oklch(0.6 0.025 70);
+    --radius: 0.375rem;
+    --agent: oklch(0.47 0.155 33);
+    --agent-muted: oklch(0.47 0.155 33 / 10%);
+    --gate: oklch(0.58 0.13 68);
+    --verified: oklch(0.5 0.09 152);
+    /* The sidebar is quieter than the page, not brighter. */
+    --sidebar: oklch(0.955 0.005 84);
+    --sidebar-foreground: oklch(0.3 0.012 65);
+    --sidebar-primary: oklch(0.47 0.155 33);
+    --sidebar-primary-foreground: oklch(0.985 0.005 80);
+    --sidebar-accent: oklch(0.925 0.007 82);
+    --sidebar-accent-foreground: oklch(0.175 0.01 65);
+    --sidebar-border: oklch(0.906 0.006 82);
+    --sidebar-ring: oklch(0.47 0.155 33 / 40%);
 }
 
 .dark {
-    --background: oklch(0.19 0.014 55);
-    --foreground: oklch(0.955 0.006 80);
-    --card: oklch(0.225 0.015 55);
-    --card-foreground: oklch(0.955 0.006 80);
-    --popover: oklch(0.225 0.015 55);
-    --popover-foreground: oklch(0.955 0.006 80);
-    --primary: oklch(0.68 0.13 40);
-    --primary-foreground: oklch(0.2 0.02 45);
-    --secondary: oklch(0.27 0.016 55);
-    --secondary-foreground: oklch(0.955 0.006 80);
-    --muted: oklch(0.27 0.016 55);
-    --muted-foreground: oklch(0.7 0.012 70);
-    --accent: oklch(0.27 0.016 55);
-    --accent-foreground: oklch(0.955 0.006 80);
-    --destructive: oklch(0.4 0.14 26);
-    --destructive-foreground: oklch(0.7 0.19 26);
-    --border: oklch(0.3 0.016 55);
-    --input: oklch(0.3 0.016 55);
-    --ring: oklch(0.68 0.13 40 / 50%);
-    --chart-1: oklch(0.68 0.13 40);
+    --background: oklch(0.163 0.008 68);
+    --foreground: oklch(0.955 0.004 80);
+    --card: oklch(0.199 0.009 68);
+    --card-foreground: oklch(0.955 0.004 80);
+    --popover: oklch(0.213 0.01 68);
+    --popover-foreground: oklch(0.955 0.004 80);
+    --primary: oklch(0.685 0.145 38);
+    --primary-foreground: oklch(0.185 0.02 40);
+    --secondary: oklch(0.245 0.01 68);
+    --secondary-foreground: oklch(0.955 0.004 80);
+    --muted: oklch(0.245 0.01 68);
+    --muted-foreground: oklch(0.685 0.012 72);
+    --accent: oklch(0.262 0.011 68);
+    --accent-foreground: oklch(0.955 0.004 80);
+    --destructive: oklch(0.42 0.15 26);
+    --destructive-foreground: oklch(0.72 0.19 26);
+    --border: oklch(0.272 0.01 68);
+    --input: oklch(0.298 0.011 68);
+    --ring: oklch(0.685 0.145 38 / 45%);
+    --rule: oklch(0.272 0.01 68);
+    --rule-strong: oklch(0.62 0.012 72);
+    --chart-1: oklch(0.685 0.145 38);
     --chart-2: oklch(0.72 0.09 58);
     --chart-3: oklch(0.78 0.13 72);
     --chart-4: oklch(0.7 0.09 155);
-    --chart-5: oklch(0.72 0.03 72);
-    --agent: oklch(0.68 0.13 40);
-    --agent-muted: oklch(0.68 0.13 40 / 16%);
+    --chart-5: oklch(0.72 0.025 72);
+    --agent: oklch(0.685 0.145 38);
+    --agent-muted: oklch(0.685 0.145 38 / 15%);
     --gate: oklch(0.78 0.13 72);
     --verified: oklch(0.7 0.09 155);
-    --sidebar: oklch(0.165 0.014 55);
-    --sidebar-foreground: oklch(0.955 0.006 80);
-    --sidebar-primary: oklch(0.68 0.13 40);
-    --sidebar-primary-foreground: oklch(0.2 0.02 45);
-    --sidebar-accent: oklch(0.27 0.01 55);
-    --sidebar-accent-foreground: oklch(0.955 0.006 80);
-    --sidebar-border: oklch(0.28 0.01 55);
-    --sidebar-ring: oklch(0.68 0.13 40 / 50%);
+    --sidebar: oklch(0.142 0.008 68);
+    --sidebar-foreground: oklch(0.76 0.008 76);
+    --sidebar-primary: oklch(0.685 0.145 38);
+    --sidebar-primary-foreground: oklch(0.185 0.02 40);
+    --sidebar-accent: oklch(0.245 0.01 68);
+    --sidebar-accent-foreground: oklch(0.955 0.004 80);
+    --sidebar-border: oklch(0.24 0.01 68);
+    --sidebar-ring: oklch(0.685 0.145 38 / 45%);
 }
 
 @layer base {
@@ -171,5 +206,36 @@
 
     body {
         @apply bg-background text-foreground;
+        font-feature-settings:
+            'cv05' 1,
+            'ss01' 1;
+    }
+
+    /* Numbers are content here, not chrome. Line them up everywhere. */
+    :where(table, [data-slot='badge']) {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+@layer components {
+    /* The structural label that opens a section. Tracked out, small, and
+       always paired with a rule so the eye reads a boundary, not a heading. */
+    .eyebrow {
+        @apply text-eyebrow text-muted-foreground uppercase;
+    }
+
+    /* Display type. Fraunces needs negative tracking to hold together at
+       size, and a lighter weight than the interface would suggest. */
+    .display {
+        @apply font-serif font-medium;
+        letter-spacing: -0.022em;
+    }
+
+    /* A figure the reader is meant to weigh: set in the display face, lined
+       up on the baseline grid, tabular so columns of them scan. */
+    .figure {
+        @apply font-serif font-medium;
+        font-variant-numeric: tabular-nums lining-nums;
+        letter-spacing: -0.03em;
     }
 }

@@ -56,7 +56,7 @@ export default function PostWorkspace({ post, drafts, messages, run, steps }: Pr
 
     return (
         <>
-            <Head title="Post" />
+            <Head title={truncateBrief(post.brief)} />
 
             <div className="grid h-full grid-cols-1 gap-4 p-4 lg:grid-cols-2">
                 <section className="flex min-h-0 flex-col gap-6 overflow-y-auto rounded-xl border bg-card p-5 shadow-xs">

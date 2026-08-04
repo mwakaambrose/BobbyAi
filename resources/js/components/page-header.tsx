@@ -3,29 +3,35 @@ import type { ReactNode } from 'react';
 type Props = {
     title: string;
     description?: string;
+    /** A short label for what this page is part of, not where it sits. */
+    eyebrow?: string;
     children?: ReactNode;
 };
 
 /**
- * The standard page introduction: a display-type title, a muted line of
- * supporting copy, and an optional right-aligned actions slot.
+ * The page's masthead: a tracked-out label, the title in display type, and a
+ * rule that closes the block off from the content below it.
  */
-export default function PageHeader({ title, description, children }: Props) {
+export default function PageHeader({
+    title,
+    description,
+    eyebrow,
+    children,
+}: Props) {
     return (
-        <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="space-y-1">
-                <h1 className="font-serif text-2xl font-medium tracking-[-0.01em]">
-                    {title}
-                </h1>
-                {description && (
-                    <p className="max-w-prose text-sm text-muted-foreground">
-                        {description}
-                    </p>
+        <header className="mb-10 border-b border-rule pb-6">
+            {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
+            <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+                <h1 className="display text-display">{title}</h1>
+                {children && (
+                    <div className="flex items-center gap-2">{children}</div>
                 )}
             </div>
-            {children && (
-                <div className="flex items-center gap-2">{children}</div>
+            {description && (
+                <p className="mt-3 max-w-[58ch] text-sm leading-relaxed text-muted-foreground">
+                    {description}
+                </p>
             )}
-        </div>
+        </header>
     );
 }
