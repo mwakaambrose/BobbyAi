@@ -1,8 +1,9 @@
 import { Form } from '@inertiajs/react';
 import RunController from '@/actions/App/Http/Controllers/Agent/RunController';
-import { StepRow } from '@/components/agent/step-row';
+import { StepNarration } from '@/components/agent/step-narration';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { screenshot } from '@/routes/runs';
 import type { RunData, StepData } from '@/types/agent';
 
 const STATUS_VARIANT: Record<RunData['status'], 'gate' | 'verified' | 'live'> =
@@ -20,8 +21,14 @@ type Props = {
     teamSlug: string;
 };
 
-export function RunTimeline({ run, steps, teamSlug }: Props) {
+/**
+ * What the agent is looking at, and what it is doing about it. The most recent
+ * screenshot stays at the top so the page it is working on is never more than a
+ * glance away, with the narration accumulating beneath it.
+ */
+export function RunTheatre({ run, steps, teamSlug }: Props) {
     const active = run.status === 'queued' || run.status === 'running';
+    const latest = [...steps].reverse().find((step) => step.screenshot_path);
 
     return (
         <div className="space-y-4">
@@ -56,9 +63,17 @@ export function RunTimeline({ run, steps, teamSlug }: Props) {
                 )}
             </header>
 
-            <ol className="rounded-md border bg-card px-3 py-3">
+            {latest && (
+                <img
+                    src={screenshot([teamSlug, run.id, latest.id]).url}
+                    alt={`What the agent saw at step ${latest.index}`}
+                    className="w-full rounded-md border"
+                />
+            )}
+
+            <ol>
                 {steps.map((step, index) => (
-                    <StepRow
+                    <StepNarration
                         key={step.id}
                         step={step}
                         last={index === steps.length - 1}
@@ -66,8 +81,9 @@ export function RunTimeline({ run, steps, teamSlug }: Props) {
                 ))}
 
                 {steps.length === 0 && (
-                    <li className="py-1.5 pl-8 font-mono text-xs text-muted-foreground">
-                        waiting for the first observation…
+                    <li className="text-meta text-muted-foreground">
+                        <span className="mr-2 inline-block size-1.5 animate-pulse rounded-full bg-agent align-middle" />
+                        Waiting for the first look at the page…
                     </li>
                 )}
             </ol>

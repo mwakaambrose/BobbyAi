@@ -1,13 +1,13 @@
-import { Deferred, Head, usePage, usePoll } from '@inertiajs/react';
+import { Deferred, Head, usePage } from '@inertiajs/react';
 import { ExternalLink } from 'lucide-react';
-import { useEffect } from 'react';
 import { DraftCanvas } from '@/components/agent/draft-canvas';
-import { RunTimeline } from '@/components/agent/run-timeline';
+import { RunTheatre } from '@/components/agent/run-theatre';
 import { StepSkeleton } from '@/components/agent/step-row';
 import { ThreadColumn } from '@/components/agent/thread-column';
 import PageContainer from '@/components/page-container';
 import { usePostChannel } from '@/hooks/use-post-channel';
 import { usePostStream } from '@/hooks/use-post-stream';
+import { useRunStream } from '@/hooks/use-run-stream';
 import { studio } from '@/routes';
 import { show } from '@/routes/posts';
 import type {
@@ -46,23 +46,7 @@ export default function PostWorkspace({
 
     const active = run?.status === 'queued' || run?.status === 'running';
 
-    // A zero interval polls as fast as the event loop allows, so the poll is
-    // always created with a real interval and started only while a run is live.
-    const { start, stop } = usePoll(
-        1500,
-        { only: ['run', 'steps', 'post'] },
-        { autoStart: false },
-    );
-
-    useEffect(() => {
-        if (active) {
-            start();
-        } else {
-            stop();
-        }
-
-        return stop;
-    }, [active, start, stop]);
+    const liveSteps = useRunStream(post.id, active, steps ?? []);
 
     return (
         <>
@@ -92,9 +76,9 @@ export default function PostWorkspace({
                                     </ol>
                                 }
                             >
-                                <RunTimeline
+                                <RunTheatre
                                     run={run}
-                                    steps={steps ?? []}
+                                    steps={liveSteps}
                                     teamSlug={teamSlug}
                                 />
                             </Deferred>
