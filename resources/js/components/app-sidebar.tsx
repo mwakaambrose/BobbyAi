@@ -29,7 +29,7 @@ export function AppSidebar() {
 
     const overviewNavItems: NavItem[] = [
         {
-            title: 'Dashboard',
+            title: 'Home',
             href: dashboardUrl,
             icon: LayoutGrid,
         },
