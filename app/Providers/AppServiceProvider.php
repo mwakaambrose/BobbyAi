@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Agent\Browser\SidecarBrowserDriver;
 use App\Agent\Contracts\BrowserDriver;
 use Carbon\CarbonImmutable;
+use Illuminate\Foundation\DevCommands;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -26,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        // Drafts stream over Reverb, so `composer dev` starts it alongside the
+        // server, queue and Vite rather than leaving it to be remembered.
+        DevCommands::artisan('reverb:start', 'reverb');
     }
 
     /**
