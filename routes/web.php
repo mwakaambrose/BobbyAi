@@ -5,6 +5,7 @@ use App\Http\Controllers\Agent\PostAlternativeController;
 use App\Http\Controllers\Agent\PostApprovalController;
 use App\Http\Controllers\Agent\PostController;
 use App\Http\Controllers\Agent\PostMessageController;
+use App\Http\Controllers\Agent\PostRefinementController;
 use App\Http\Controllers\Agent\RunController;
 use App\Http\Controllers\Agent\ScreenshotController;
 use App\Http\Controllers\Agent\SocialAccountController;
@@ -27,6 +28,8 @@ Route::prefix('{current_team}')
         Route::get('posts/{post}', [PostController::class, 'show'])->name('posts.show');
         Route::post('posts/{post}/messages', [PostMessageController::class, 'store'])->name('posts.messages.store');
         Route::post('posts/{post}/alternatives', [PostAlternativeController::class, 'store'])->name('posts.alternatives.store');
+        Route::post('posts/{post}/refinements', [PostRefinementController::class, 'store'])->name('posts.refinements.store');
+        Route::post('posts/{post}/refinements/accept', [PostRefinementController::class, 'accept'])->name('posts.refinements.accept');
         Route::post('posts/{post}/approve', [PostApprovalController::class, 'store'])->name('posts.approve');
 
         Route::get('runs', [RunController::class, 'index'])->name('runs.index');
