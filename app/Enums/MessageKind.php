@@ -7,4 +7,5 @@ enum MessageKind: string
     case Text = 'text';
     case Drafts = 'drafts';
     case Run = 'run';
+    case Error = 'error';
 }
