@@ -3,14 +3,14 @@ import type { ReactNode } from 'react';
 type Props = {
     title: string;
     description?: string;
-    /** A short label for what this page is part of, not where it sits. */
+    /** Live context for the page, shown as a pill beside the title. */
     eyebrow?: string;
     children?: ReactNode;
 };
 
 /**
- * The page's masthead: a tracked-out label, the title in display type, and a
- * rule that closes the block off from the content below it.
+ * The page title block. Actions sit on the title's line so the row reads as
+ * one control strip, and the supporting copy stays out of their way.
  */
 export default function PageHeader({
     title,
@@ -19,16 +19,22 @@ export default function PageHeader({
     children,
 }: Props) {
     return (
-        <header className="mb-10 border-b border-rule pb-6">
-            {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
-            <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-                <h1 className="display text-display">{title}</h1>
+        <header className="mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                <div className="flex items-center gap-2.5">
+                    <h1 className="text-title">{title}</h1>
+                    {eyebrow && (
+                        <span className="eyebrow rounded-md bg-muted px-1.5 py-0.5">
+                            {eyebrow}
+                        </span>
+                    )}
+                </div>
                 {children && (
                     <div className="flex items-center gap-2">{children}</div>
                 )}
             </div>
             {description && (
-                <p className="mt-3 max-w-[58ch] text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-1.5 max-w-[62ch] text-meta text-muted-foreground">
                     {description}
                 </p>
             )}

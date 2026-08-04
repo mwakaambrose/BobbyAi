@@ -3,8 +3,7 @@ import { usePage } from '@inertiajs/react';
 import AppLogoIcon from '@/components/app-logo-icon';
 
 /**
- * The mark sits as ink on the page rather than inside a filled tile, so the
- * wordmark reads as a masthead instead of an app icon.
+ * The mark carries the brand colour on its own, so it needs no tile behind it.
  */
 export default function AppLogo() {
     const { name } = usePage().props;
@@ -15,7 +14,7 @@ export default function AppLogo() {
                 <AppLogoIcon className="size-6 fill-current" />
             </div>
             <div className="ml-1.5 grid flex-1 text-left">
-                <span className="display truncate text-[1.0625rem] leading-tight text-foreground">
+                <span className="display truncate text-sm leading-tight text-foreground">
                     {name}
                 </span>
             </div>

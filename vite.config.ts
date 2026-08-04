@@ -12,15 +12,10 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             refresh: true,
             fonts: [
-                bunny('Fraunces', {
-                    weights: [400, 500, 600],
-                    styles: ['normal', 'italic'],
-                }),
-                bunny('Instrument Sans', {
+                bunny('Geist', {
                     weights: [400, 500, 600, 700],
-                    styles: ['normal', 'italic'],
                 }),
-                bunny('JetBrains Mono', {
+                bunny('Geist Mono', {
                     weights: [400, 500],
                 }),
             ],

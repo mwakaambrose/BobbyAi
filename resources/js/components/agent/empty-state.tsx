@@ -9,9 +9,9 @@ type Props = {
 };
 
 /**
- * An empty screen is an invitation to act, so it is set like the opening of a
- * section: a rule, the instruction in display type, and the action right
- * under it. The icon sits small and inline rather than in a decorative badge.
+ * An empty screen is an invitation to act. It sits in a dashed well so it
+ * reads as a placeholder rather than a permanent surface, with the action
+ * directly under the instruction.
  */
 export function EmptyState({
     icon: Icon,
@@ -20,17 +20,17 @@ export function EmptyState({
     children,
 }: Props) {
     return (
-        <div className="border-t border-rule-strong py-10">
-            <div className="max-w-md space-y-4">
-                <Icon className="size-5 text-agent" aria-hidden />
-                <div className="space-y-2">
-                    <p className="display text-2xl">{title}</p>
-                    <p className="font-serif text-[0.9375rem] leading-relaxed text-muted-foreground italic">
-                        {description}
-                    </p>
-                </div>
-                {children && <div className="flex gap-2 pt-1">{children}</div>}
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-14 text-center">
+            <div className="flex size-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground shadow-xs">
+                <Icon className="size-4" aria-hidden />
             </div>
+            <p className="display mt-4 text-sm">{title}</p>
+            <p className="mt-1.5 max-w-sm text-meta text-muted-foreground">
+                {description}
+            </p>
+            {children && (
+                <div className="mt-5 flex items-center gap-2">{children}</div>
+            )}
         </div>
     );
 }

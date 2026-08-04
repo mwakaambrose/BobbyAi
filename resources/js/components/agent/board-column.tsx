@@ -19,13 +19,8 @@ export function BoardColumn({ label, status, posts, teamSlug }: Props) {
 
     return (
         <section className="flex w-72 shrink-0 flex-col">
-            <header
-                className={cn(
-                    'flex items-baseline justify-between gap-2 border-b pb-2',
-                    live ? 'border-agent' : 'border-rule-strong',
-                )}
-            >
-                <h2 className="eyebrow flex items-center gap-1.5 text-foreground">
+            <header className="flex items-center justify-between gap-2 px-0.5 pb-2.5">
+                <h2 className="flex items-center gap-1.5 text-[0.8125rem] font-medium">
                     {live && (
                         <span
                             className="size-1.5 shrink-0 animate-pulse rounded-full bg-agent"
@@ -36,17 +31,19 @@ export function BoardColumn({ label, status, posts, teamSlug }: Props) {
                 </h2>
                 <span
                     className={cn(
-                        'figure text-sm',
-                        live ? 'text-agent' : 'text-muted-foreground',
+                        'rounded-md px-1.5 py-0.5 text-label tabular-nums',
+                        live
+                            ? 'bg-agent-muted text-agent'
+                            : 'bg-muted text-muted-foreground',
                     )}
                 >
                     {posts.length}
                 </span>
             </header>
 
-            <div className="flex max-h-[calc(100dvh-17rem)] min-h-32 flex-col gap-2 overflow-y-auto pt-3">
+            <div className="flex max-h-[calc(100dvh-17rem)] min-h-32 flex-col gap-2 overflow-y-auto rounded-lg bg-muted/50 p-2">
                 {posts.length === 0 ? (
-                    <p className="py-3 font-serif text-sm text-muted-foreground italic">
+                    <p className="px-1 py-6 text-center text-meta text-muted-foreground">
                         Nothing here yet.
                     </p>
                 ) : (

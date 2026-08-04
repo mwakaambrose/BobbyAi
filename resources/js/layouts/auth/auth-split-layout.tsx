@@ -20,13 +20,13 @@ export default function AuthSplitLayout({
                     <span className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                         <AppLogoIcon className="size-5 fill-current" />
                     </span>
-                    <span className="font-serif text-lg font-medium tracking-[-0.01em]">
+                    <span className="text-base font-semibold tracking-[-0.015em]">
                         {name}
                     </span>
                 </Link>
 
                 <blockquote className="relative z-20 max-w-md space-y-2">
-                    <p className="font-serif text-xl leading-relaxed text-balance italic">
+                    <p className="text-lg leading-relaxed text-balance">
                         Nothing reaches LinkedIn until you approve the exact
                         words.
                     </p>
@@ -47,9 +47,7 @@ export default function AuthSplitLayout({
                         </span>
                     </Link>
                     <div className="flex flex-col items-start gap-2 text-left sm:items-center sm:text-center">
-                        <h1 className="font-serif text-2xl font-medium tracking-[-0.01em]">
-                            {title}
-                        </h1>
+                        <h1 className="text-title">{title}</h1>
                         <p className="text-sm text-balance text-muted-foreground">
                             {description}
                         </p>

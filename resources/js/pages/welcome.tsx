@@ -14,7 +14,7 @@ function Nav() {
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                     <AppLogoIcon className="size-5 fill-current" />
                 </div>
-                <span className="font-serif text-lg font-medium tracking-[-0.01em]">
+                <span className="text-base font-semibold tracking-[-0.015em]">
                     {usePage().props.name}
                 </span>
             </Link>
@@ -46,7 +46,7 @@ function Hero() {
             <p className="font-mono text-[11px] tracking-widest text-muted-foreground uppercase">
                 LinkedIn, on your terms
             </p>
-            <h1 className="mt-4 font-serif text-5xl leading-[1.05] font-medium tracking-[-0.02em] text-balance sm:text-6xl">
+            <h1 className="mt-4 text-5xl leading-[1.05] font-semibold tracking-[-0.032em] text-balance sm:text-6xl">
                 An agent that writes your posts, and never publishes one without
                 you.
             </h1>
@@ -87,7 +87,7 @@ const steps = [
 function HowItWorks() {
     return (
         <section className="mx-auto max-w-5xl px-6 py-16">
-            <h2 className="text-center font-serif text-3xl font-medium tracking-[-0.01em]">
+            <h2 className="text-center text-3xl font-semibold tracking-[-0.025em]">
                 How it works
             </h2>
             <div className="mt-10 grid gap-6 sm:grid-cols-3">
