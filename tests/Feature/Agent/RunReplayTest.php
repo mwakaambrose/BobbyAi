@@ -58,3 +58,19 @@ test('another team cannot read a run or its screenshots', function (): void {
     $this->actingAs($user)->get(route('runs.show', [$team->slug, $run]))->assertNotFound();
     $this->actingAs($user)->get(route('runs.screenshot', [$team->slug, $run, $step]))->assertNotFound();
 });
+
+test('the replay is narrated rather than logged', function (): void {
+    [$user, $team] = teamUser();
+    $post = Post::factory()->create(['team_id' => $team->id]);
+    $run = AgentRun::factory()->create(['post_id' => $post->id]);
+    AgentStep::factory()->create([
+        'agent_run_id' => $run->id,
+        'index' => 0,
+        'action' => ['action' => 'click', 'ref' => 4, 'text' => null, 'key' => null, 'why' => ''],
+        'target' => 'Start a post',
+    ]);
+
+    partialReload($this->actingAs($user), route('runs.show', [$team->slug, $run]), 'runs/show', 'steps')
+        ->assertOk()
+        ->assertJsonPath('props.steps.0.narration', 'Clicked “Start a post”');
+});

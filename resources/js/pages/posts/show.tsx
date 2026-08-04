@@ -2,7 +2,7 @@ import { Deferred, Head, usePage } from '@inertiajs/react';
 import { ExternalLink } from 'lucide-react';
 import { DraftCanvas } from '@/components/agent/draft-canvas';
 import { RunTheatre } from '@/components/agent/run-theatre';
-import { StepSkeleton } from '@/components/agent/step-row';
+import { StepSkeleton } from '@/components/agent/step-skeleton';
 import { ThreadColumn } from '@/components/agent/thread-column';
 import PageContainer from '@/components/page-container';
 import { usePostChannel } from '@/hooks/use-post-channel';

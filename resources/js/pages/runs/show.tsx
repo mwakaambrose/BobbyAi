@@ -1,6 +1,7 @@
 import { Deferred, Head, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { StepRow, StepSkeleton } from '@/components/agent/step-row';
+import { StepNarration } from '@/components/agent/step-narration';
+import { StepSkeleton } from '@/components/agent/step-skeleton';
 import PageContainer from '@/components/page-container';
 import PageHeader from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +35,7 @@ function Replay({ runId, steps }: { runId: number; steps: StepData[] }) {
     return (
         <div className="grid gap-6 lg:grid-cols-[19rem_1fr]">
             <ol
-                className="h-fit rounded-md border bg-card px-3 py-3"
+                className="h-fit rounded-md border bg-card px-3 py-4"
                 onMouseLeave={() => setCursor(0)}
             >
                 {steps.map((step, index) => (
@@ -43,7 +44,7 @@ function Replay({ runId, steps }: { runId: number; steps: StepData[] }) {
                         onMouseEnter={() => setCursor(index)}
                         onFocus={() => setCursor(index)}
                     >
-                        <StepRow
+                        <StepNarration
                             step={step}
                             last={index === steps.length - 1}
                         />
@@ -53,15 +54,21 @@ function Replay({ runId, steps }: { runId: number; steps: StepData[] }) {
 
             {current && (
                 <figure className="space-y-3">
-                    <img
-                        src={screenshot([teamSlug, runId, current.id]).url}
-                        alt={`What the agent saw at step ${current.index}`}
-                        className="w-full rounded-md border"
-                    />
-                    <figcaption className="font-mono text-xs text-muted-foreground">
-                        step {String(current.index).padStart(2, '0')} ·{' '}
-                        {current.phase}
-                        {current.reasoning && ` · “${current.reasoning}”`}
+                    {current.screenshot_path && (
+                        <img
+                            src={screenshot([teamSlug, runId, current.id]).url}
+                            alt={`What the agent saw at step ${current.index}`}
+                            className="w-full rounded-md border"
+                        />
+                    )}
+                    <figcaption className="space-y-1">
+                        <p className="text-sm">{current.narration}</p>
+                        <p className="font-mono text-xs text-muted-foreground">
+                            step {String(current.index).padStart(2, '0')} ·{' '}
+                            {current.phase}
+                            {current.latency_ms !== null &&
+                                ` · ${current.latency_ms}ms`}
+                        </p>
                     </figcaption>
                 </figure>
             )}
