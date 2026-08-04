@@ -37,18 +37,24 @@ const marks = [
 ] as const;
 
 /**
- * The ground the hero sits on: an even field of marks in the hairline colour,
- * a few of them live, over a faint warmth that stops well short of reading as
- * a gradient. The whole thing dissolves before the page reaches the band.
+ * The ground the hero sits on: an even field of marks, a few of them live. No
+ * wash behind them — the field is the only ground. It dissolves before the page
+ * reaches the band.
  */
 function Motif() {
     return (
         <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-160 mask-[linear-gradient(to_bottom,black,black_45%,transparent)]"
+            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-160 mask-[linear-gradient(to_bottom,black,black_60%,transparent)]"
         >
-            <div className="absolute inset-0 bg-[radial-gradient(var(--color-border)_1px,transparent_1px)] bg-size-[26px_26px] opacity-70" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,var(--color-agent-muted),transparent_65%)] opacity-50" />
+            <div
+                className="absolute inset-0"
+                style={{
+                    backgroundImage:
+                        'radial-gradient(color-mix(in oklch, var(--color-foreground) 16%, transparent) 1.5px, transparent 1.5px)',
+                    backgroundSize: '22px 22px',
+                }}
+            />
             {marks.map((item) => (
                 <span
                     key={`${item.edge}-${item.top}`}
