@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array{action: string, ref: int|null, text: string|null, key: string|null, why: string}|null $action
  * @property string|null $reasoning
  * @property int|null $ref
+ * @property string|null $target
  * @property string|null $screenshot_path
  * @property GateVerdict|null $gate_decision
  * @property string|null $gate_reason

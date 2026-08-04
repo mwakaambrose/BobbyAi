@@ -178,6 +178,9 @@ final class PublishRunner
             'action' => $action?->toArray(),
             'reasoning' => $reasoning ?? $action?->why,
             'ref' => $action?->ref,
+            'target' => $action?->ref === null
+                ? null
+                : $observation->element($action->ref)?->name,
             'screenshot_path' => $this->storeScreenshot($run, $observation),
             'gate_decision' => $verdict,
             'gate_reason' => $gateReason,

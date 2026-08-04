@@ -183,3 +183,21 @@ test('it fails the run as unverified when the post cannot be confirmed', functio
         ->and($run->failure_reason)->toContain('unverified')
         ->and($run->post->fresh()->status)->toBe(PostStatus::Failed);
 });
+
+test('a step remembers the element the action targeted', function (): void {
+    fakeDriver();
+
+    ActionPlannerAgent::fake([
+        ['action' => 'click', 'ref' => 7, 'text' => null, 'key' => null, 'why' => 'open the composer'],
+        ['action' => 'finish', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'submitted'],
+    ]);
+
+    PublishVerifierAgent::fake([
+        ['published' => true, 'evidence' => 'Visible in feed.', 'url' => null],
+    ]);
+
+    $run = app(PublishRunner::class)->run(runnableRun());
+
+    expect($run->steps()->first()->target)->toBe('Start a post')
+        ->and($run->steps()->whereNull('action')->first()?->target)->toBeNull();
+});
