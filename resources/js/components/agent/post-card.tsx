@@ -50,7 +50,14 @@ export function PostCard({ post, teamSlug }: Props) {
             </p>
 
             <div className="mt-3 flex items-center justify-between font-mono text-[11px] text-muted-foreground">
-                <span>{post.updatedAt}</span>
+                <span className="flex items-center gap-1.5">
+                    {post.byBobby && (
+                        <span className="rounded bg-agent/12 px-1.5 py-0.5 text-agent">
+                            Bobby
+                        </span>
+                    )}
+                    {post.updatedAt}
+                </span>
 
                 {post.progress && (
                     <span className="flex items-center gap-1.5 text-agent">

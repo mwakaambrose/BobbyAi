@@ -3,12 +3,15 @@
 namespace App\Jobs;
 
 use App\Agent\Composer;
+use App\Agent\NarrativeContextBuilder;
+use App\Agent\Values\DraftContext;
 use App\Enums\MessageKind;
 use App\Enums\MessageRole;
 use App\Events\DraftChunk;
 use App\Events\DraftCompleted;
 use App\Events\DraftFailed;
 use App\Models\Post;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Throwable;
@@ -18,7 +21,7 @@ use Throwable;
  */
 class DraftPostContent implements ShouldQueue
 {
-    use Queueable;
+    use Batchable, Queueable;
 
     public int $tries = 2;
 
@@ -28,13 +31,18 @@ class DraftPostContent implements ShouldQueue
         public readonly ?string $revisionOf = null,
     ) {}
 
-    public function handle(Composer $composer): void
+    public function handle(Composer $composer, NarrativeContextBuilder $narrative): void
     {
+        $context = new DraftContext(
+            brief: $this->brief,
+            brand: $this->post->team->brandProfile,
+            revisionOf: $this->revisionOf,
+            narrative: $narrative->for($this->post->team),
+        );
+
         $draft = $composer->streamFor(
             $this->post,
-            $this->brief,
-            $this->post->team->brandProfile,
-            $this->revisionOf,
+            $context,
             fn (string $delta) => DraftChunk::dispatch($this->post->id, $delta),
         );
 

@@ -2,8 +2,8 @@
 
 namespace App\Agent;
 
+use App\Agent\Values\DraftContext;
 use App\Ai\Agents\ComposerAgent;
-use App\Models\BrandProfile;
 use App\Models\Post;
 use App\Models\PostDraft;
 use Closure;
@@ -29,19 +29,14 @@ final class Composer
      *
      * @param  Closure(string): void  $onDelta
      */
-    public function streamFor(
-        Post $post,
-        string $brief,
-        ?BrandProfile $brand,
-        ?string $revisionOf,
-        Closure $onDelta,
-    ): PostDraft {
-        $banned = $brand->banned_terms ?? [];
+    public function streamFor(Post $post, DraftContext $context, Closure $onDelta): PostDraft
+    {
+        $banned = $context->bannedTerms();
 
-        $body = $this->stream($this->prompt($brief, $brand, $revisionOf, []), $onDelta);
+        $body = $this->stream($this->prompt($context, []), $onDelta);
 
         if ($this->copywriter->bannedTermsIn($body, $banned) !== []) {
-            $body = $this->generate($this->prompt($brief, $brand, $revisionOf, $banned));
+            $body = $this->generate($this->prompt($context, $banned));
         }
 
         $post->drafts()->delete();
@@ -103,16 +98,19 @@ final class Composer
      *
      * @param  string[]  $avoid
      */
-    private function prompt(string $brief, ?BrandProfile $brand, ?string $revisionOf, array $avoid): string
+    private function prompt(DraftContext $context, array $avoid): string
     {
+        $brand = $context->brand;
+
         return implode("\n\n", array_filter([
-            'BRIEF: '.$brief,
+            'BRIEF: '.$context->brief,
             $brand?->voice ? 'VOICE: '.$brand->voice : null,
             $brand?->audience ? 'AUDIENCE: '.$brand->audience : null,
             $brand?->topics ? 'TOPICS: '.implode(', ', $brand->topics) : null,
             $brand?->banned_terms ? 'NEVER USE: '.implode(', ', $brand->banned_terms) : null,
             $brand?->examples ? "EXAMPLES OF OUR VOICE:\n".implode("\n", $brand->examples) : null,
-            $revisionOf ? "REVISE THIS DRAFT:\n".$revisionOf : null,
+            $context->narrative?->toPrompt(),
+            $context->revisionOf ? "REVISE THIS DRAFT:\n".$context->revisionOf : null,
             $avoid === [] ? null : 'Your previous attempt used these forbidden terms: '.implode(', ', $avoid).'. Do not use them.',
         ]));
     }

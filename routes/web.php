@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Agent\AutopilotController;
 use App\Http\Controllers\Agent\BrandProfileController;
 use App\Http\Controllers\Agent\PostAlternativeController;
 use App\Http\Controllers\Agent\PostApprovalController;
 use App\Http\Controllers\Agent\PostController;
+use App\Http\Controllers\Agent\PostIdeaController;
 use App\Http\Controllers\Agent\PostMessageController;
 use App\Http\Controllers\Agent\PostRefinementController;
 use App\Http\Controllers\Agent\RunController;
@@ -31,6 +33,13 @@ Route::prefix('{current_team}')
         Route::post('posts/{post}/refinements', [PostRefinementController::class, 'store'])->name('posts.refinements.store');
         Route::post('posts/{post}/refinements/accept', [PostRefinementController::class, 'accept'])->name('posts.refinements.accept');
         Route::post('posts/{post}/approve', [PostApprovalController::class, 'store'])->name('posts.approve');
+
+        Route::get('autopilot', [AutopilotController::class, 'index'])->name('autopilot.index');
+        Route::put('autopilot/schedule', [AutopilotController::class, 'update'])->name('autopilot.schedule.update');
+        Route::put('autopilot/ideas/order', [PostIdeaController::class, 'reorder'])->name('autopilot.ideas.reorder');
+        Route::post('autopilot/ideas', [PostIdeaController::class, 'store'])->name('autopilot.ideas.store');
+        Route::put('autopilot/ideas/{idea}', [PostIdeaController::class, 'update'])->name('autopilot.ideas.update');
+        Route::delete('autopilot/ideas/{idea}', [PostIdeaController::class, 'destroy'])->name('autopilot.ideas.destroy');
 
         Route::get('runs', [RunController::class, 'index'])->name('runs.index');
         Route::get('runs/{run}', [RunController::class, 'show'])->name('runs.show');

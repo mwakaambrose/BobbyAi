@@ -1,6 +1,7 @@
 <?php
 
 use App\Agent\Composer;
+use App\Agent\NarrativeContextBuilder;
 use App\Ai\Agents\ComposerAgent;
 use App\Enums\MessageKind;
 use App\Enums\MessageRole;
@@ -23,7 +24,7 @@ test('the job persists a single draft and announces completion', function () {
         'brief' => 'Announce the Series A',
     ]);
 
-    (new DraftPostContent($post, $post->brief))->handle(app(Composer::class));
+    (new DraftPostContent($post, $post->brief))->handle(app(Composer::class), app(NarrativeContextBuilder::class));
 
     $draft = $post->drafts()->sole();
 
@@ -42,7 +43,7 @@ test('the draft is broadcast as it is written', function () {
     $user = User::factory()->create();
     $post = Post::factory()->for($user->currentTeam)->create(['author_id' => $user->id]);
 
-    (new DraftPostContent($post, 'Announce the Series A'))->handle(app(Composer::class));
+    (new DraftPostContent($post, 'Announce the Series A'))->handle(app(Composer::class), app(NarrativeContextBuilder::class));
 
     Event::assertDispatchedTimes(DraftChunk::class, 3);
     Event::assertDispatched(DraftChunk::class, fn (DraftChunk $event): bool => $event->postId === $post->id
@@ -56,7 +57,7 @@ test('the job records the agent turn in the thread', function () {
     $user = User::factory()->create();
     $post = Post::factory()->for($user->currentTeam)->create(['author_id' => $user->id]);
 
-    (new DraftPostContent($post, 'Announce the Series A'))->handle(app(Composer::class));
+    (new DraftPostContent($post, 'Announce the Series A'))->handle(app(Composer::class), app(NarrativeContextBuilder::class));
 
     $message = $post->messages()->where('role', MessageRole::Agent)->sole();
 
@@ -73,7 +74,7 @@ test('a draft using a banned term is regenerated before it is persisted', functi
 
     $post = Post::factory()->for($team)->create(['author_id' => $user->id]);
 
-    (new DraftPostContent($post, 'Announce the Series A'))->handle(app(Composer::class));
+    (new DraftPostContent($post, 'Announce the Series A'))->handle(app(Composer::class), app(NarrativeContextBuilder::class));
 
     expect($post->drafts()->sole()->body)->toBe('Our team is unmatched.');
 });
@@ -86,7 +87,7 @@ test('a provider error is not swallowed', function () {
 
     $job = new DraftPostContent($post, 'Announce the Series A');
 
-    expect(fn () => $job->handle(app(Composer::class)))->toThrow(RuntimeException::class);
+    expect(fn () => $job->handle(app(Composer::class), app(NarrativeContextBuilder::class)))->toThrow(RuntimeException::class);
     expect($post->drafts()->count())->toBe(0);
 });
 

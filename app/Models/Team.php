@@ -26,6 +26,8 @@ use Illuminate\Support\Carbon;
  * @property-read BrandProfile|null $brandProfile
  * @property-read Collection<int, SocialAccount> $socialAccounts
  * @property-read Collection<int, Post> $posts
+ * @property-read Collection<int, PostIdea> $postIdeas
+ * @property-read PostingSchedule|null $postingSchedule
  * @property-read Collection<int, TeamInvitation> $invitations
  * @property-read Collection<int, Membership> $memberships
  * @property-read Collection<int, User> $members
@@ -127,6 +129,26 @@ class Team extends Model
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Get the team's autopilot idea backlog.
+     *
+     * @return HasMany<PostIdea, $this>
+     */
+    public function postIdeas(): HasMany
+    {
+        return $this->hasMany(PostIdea::class);
+    }
+
+    /**
+     * Get the team's autopilot cadence.
+     *
+     * @return HasOne<PostingSchedule, $this>
+     */
+    public function postingSchedule(): HasOne
+    {
+        return $this->hasOne(PostingSchedule::class);
     }
 
     /**

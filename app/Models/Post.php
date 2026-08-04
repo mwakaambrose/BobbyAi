@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $team_id
  * @property int|null $social_account_id
- * @property int $author_id
+ * @property int|null $author_id Null when the autopilot wrote the post rather than a person.
  * @property string $brief
  * @property PostStatus $status
  * @property string|null $approved_body

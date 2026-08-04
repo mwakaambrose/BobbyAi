@@ -1,5 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
-import { History, LayoutGrid, Palette, PenLine, Plug } from 'lucide-react';
+import {
+    CalendarClock,
+    History,
+    LayoutGrid,
+    Palette,
+    PenLine,
+    Plug,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -15,6 +22,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard, studio } from '@/routes';
 import { index as accountsIndex } from '@/routes/accounts';
+import { index as autopilotIndex } from '@/routes/autopilot';
 import { edit as brandEdit } from '@/routes/brand';
 import { index as runsIndex } from '@/routes/runs';
 import type { NavItem } from '@/types';
@@ -40,6 +48,11 @@ export function AppSidebar() {
     const workNavItems: NavItem[] = teamSlug
         ? [
               { title: 'Studio', href: studio(teamSlug), icon: PenLine },
+              {
+                  title: 'Autopilot',
+                  href: autopilotIndex(teamSlug),
+                  icon: CalendarClock,
+              },
               { title: 'Runs', href: runsIndex(teamSlug), icon: History },
           ]
         : [];

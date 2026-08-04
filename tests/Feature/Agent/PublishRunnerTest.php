@@ -7,11 +7,13 @@ use App\Agent\Values\Observation;
 use App\Ai\Agents\ActionPlannerAgent;
 use App\Ai\Agents\PublishVerifierAgent;
 use App\Enums\GateVerdict;
+use App\Events\RunStepRecorded;
 use App\Enums\PostStatus;
 use App\Enums\RunStatus;
 use App\Models\AgentRun;
 use App\Models\Post;
 use App\Models\SocialAccount;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 const RUNNER_BODY = 'We built Growth Savings because members asked for it.';
@@ -200,4 +202,25 @@ test('a step remembers the element the action targeted', function (): void {
 
     expect($run->steps()->first()->target)->toBe('Start a post')
         ->and($run->steps()->whereNull('action')->first()?->target)->toBeNull();
+});
+
+test('every step is broadcast as it is recorded', function (): void {
+    Event::fake([RunStepRecorded::class]);
+    fakeDriver();
+
+    ActionPlannerAgent::fake([
+        ['action' => 'click', 'ref' => 7, 'text' => null, 'key' => null, 'why' => 'open the composer'],
+        ['action' => 'finish', 'ref' => null, 'text' => null, 'key' => null, 'why' => 'submitted'],
+    ]);
+
+    PublishVerifierAgent::fake([
+        ['published' => true, 'evidence' => 'Visible in feed.', 'url' => null],
+    ]);
+
+    $run = app(PublishRunner::class)->run(runnableRun());
+
+    Event::assertDispatchedTimes(RunStepRecorded::class, $run->steps()->count());
+    Event::assertDispatched(RunStepRecorded::class, fn (RunStepRecorded $event): bool => $event->postId === $run->post_id
+        && $event->runId === $run->id
+        && $event->step['narration'] === 'Clicked “Start a post”');
 });

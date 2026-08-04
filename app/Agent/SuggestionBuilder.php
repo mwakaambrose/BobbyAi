@@ -18,7 +18,7 @@ final class SuggestionBuilder
 
     private const RESUME_WINDOW_DAYS = 7;
 
-    private const PILLAR_WINDOW_DAYS = 14;
+    public function __construct(private readonly PillarSelector $pillarSelector) {}
 
     /**
      * Get up to three suggestions for the team, most actionable first.
@@ -87,19 +87,7 @@ final class SuggestionBuilder
      */
     private function pillars(Team $team): array
     {
-        $topics = $team->brandProfile?->topics ?? [];
-
-        if ($topics === []) {
-            return [];
-        }
-
-        $recent = mb_strtolower($team->posts()
-            ->where('published_at', '>=', now()->subDays(self::PILLAR_WINDOW_DAYS))
-            ->pluck('brief')
-            ->implode(' '));
-
-        return (new Collection($topics))
-            ->reject(fn (string $topic): bool => str_contains($recent, mb_strtolower($topic)))
+        return (new Collection($this->pillarSelector->unusedFor($team)))
             ->map(fn (string $topic): array => [
                 'label' => 'Write about '.$topic,
                 'hint' => 'From your brand profile',

@@ -87,6 +87,7 @@ export type BoardPost = {
     publishedUrl: string | null;
     updatedAt: string;
     progress: { steps: number; budget: number } | null;
+    byBobby: boolean;
 };
 
 export type Suggestion = {
@@ -102,4 +103,34 @@ export type HomeStatus = {
     accountsConnected: number;
     accountsTotal: number;
     teamSlug: string;
+};
+
+export type IdeaKind = 'announcement' | 'lesson' | 'story' | 'opinion';
+
+export type PostIdeaData = {
+    id: number;
+    body: string;
+    kind: IdeaKind | null;
+    kind_source: 'agent' | 'user' | null;
+    position: number;
+};
+
+export type DraftedIdeaData = {
+    id: number;
+    body: string;
+    kind: IdeaKind | null;
+    post_id: number | null;
+    used_at: string;
+    post: { id: number; brief: string; status: PostStatus } | null;
+};
+
+export type PostingScheduleData = {
+    isActive: boolean;
+    days: string[];
+    timeOfDay: string;
+    timezone: string;
+    postsPerRun: number;
+    socialAccountId: number | null;
+    notifyEmails: string[];
+    lastRanAt: string | null;
 };

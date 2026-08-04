@@ -23,11 +23,15 @@ class StudioController extends Controller
         $posts = $team->posts()
             ->with('runs:id,post_id,status,step_count')
             ->latest('id')
-            ->get(['id', 'brief', 'status', 'approved_body', 'published_url', 'updated_at']);
+            ->get(['id', 'brief', 'status', 'approved_body', 'published_url', 'updated_at', 'author_id']);
 
         return Inertia::render('studio/index', [
             'columns' => $this->columns($posts),
             'totalPosts' => $posts->count(),
+            'awaitingReview' => $posts
+                ->where('status', PostStatus::Draft)
+                ->whereNull('author_id')
+                ->count(),
             'accounts' => $team->socialAccounts()->connected()->get()->map(fn (SocialAccount $account): array => [
                 'id' => $account->id,
                 'handle' => $account->handle,
@@ -57,6 +61,7 @@ class StudioController extends Controller
                     'publishedUrl' => $post->published_url,
                     'updatedAt' => $post->updated_at->diffForHumans(),
                     'progress' => $this->progress($post),
+                    'byBobby' => $post->author_id === null,
                 ])
                 ->values()
                 ->all(),
