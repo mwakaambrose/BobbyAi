@@ -24,6 +24,7 @@ visible throughout.
 | Visual language | Existing warm paper-and-ink tokens, at the references' entry-point scale |
 | Response feel | True token streaming over Reverb, with polling fallback |
 | Suggestion source | Derived from stored data, no model call |
+| Draft model | One streamed plain-text draft; three alternatives on demand |
 
 Rejected: a full thread-first restructure (retires the kanban pipeline view), a
 reference-faithful violet/glass restyle (discards the warm system built over the last
@@ -65,11 +66,31 @@ versioned drafts via `variant` and `selected_at`.
 
 The right column becomes a pinned canvas rather than a passive draft list:
 
-- current draft body
-- `v2 of 3` with version arrows driven by `PostDraft.variant`
+- current draft body, streaming as it is written
 - character count
 - brand-voice provenance line
 - **Approve & publish** button, on the canvas rather than below the thread
+- **Show me other angles** — populates the canvas with the three alternatives and
+  reveals arrows to move between them
+
+### Draft model: one streamed draft, alternatives on demand
+
+`CopywriterAgent` implements `HasStructuredOutput` and returns exactly three
+alternatives (hook-led, story-led, question-led) in a single JSON response. Streaming
+that produces partial-JSON deltas, which cannot be rendered as prose — there is nothing
+to type into the canvas. `PostDraft.variant` holds A/B/C *alternatives*, not revisions
+over time, so the canvas arrows are an alternative-picker, not a version history.
+
+Therefore:
+
+- A new **`ComposerAgent`** — plain text, no structured output — writes a *single* draft
+  and is the one that streams. It inherits `CopywriterAgent`'s instructions minus the
+  "return exactly three" clause. Its output is persisted as variant `A`.
+- **`CopywriterAgent` is unchanged** and moves behind the explicit "Show me other
+  angles" action, which generates variants `A`, `B`, `C` as it does today.
+- Banned-term enforcement must apply to both paths. `Copywriter::bannedTermsIn()` is
+  already public and stays the single source of that rule; the composer path reuses it
+  with the same regenerate-once-on-violation behaviour.
 
 The left column becomes purely conversational: user turns, agent prose, follow-up chips.
 Run steps remain in their existing deferred panel.
@@ -117,11 +138,22 @@ state. `PostMessageController@store` gets identical treatment for follow-up turn
 
 ### Job path
 
-`DraftPostContent` runs the copywriter in streaming mode, broadcasting each chunk as a
-`DraftChunk` event on a private `posts.{id}` channel. The event is `ShouldBroadcastNow` —
-queueing individual chunks would defeat the purpose. On completion the job persists the
-`PostDraft` rows and the agent `PostMessage` exactly as the controller does today, then
-broadcasts `DraftCompleted`.
+`DraftPostContent` calls `ComposerAgent::stream()` and iterates the returned
+`StreamableAgentResponse`, per the AI SDK's documented streaming API.
+
+The SDK also offers `$event->broadcast(new Channel(...))` and an agent-level
+`broadcastOnQueue()`, which would broadcast the SDK's own stream-event classes directly.
+The job deliberately does **not** use those. It re-emits each text delta as the
+application's own `DraftChunk` event (`ShouldBroadcastNow`, payload `{ delta: string }`)
+on a private `posts.{id}` channel, because:
+
+- the client contract stays ours — stable event names, no coupling to the SDK's internal
+  streaming event classes across upgrades
+- the job keeps control of persistence and failure handling around the loop
+- `Event::fake()` assertions become straightforward
+
+On completion the job persists the `PostDraft` (variant `A`) and the agent `PostMessage`,
+then broadcasts `DraftCompleted`.
 
 ### Client path
 
@@ -149,13 +181,15 @@ Job `tries: 2`. On final failure the job persists an agent message of a new
 Retry that redispatches. A thread that fails mid-stream must never be left appearing to
 still be thinking.
 
-### Open item for planning
+### Resolved during planning
 
-The exact streaming surface exposed by `laravel/ai` v0.10 must be confirmed before
-writing the job's inner loop. The architecture holds either way; only the loop's shape
-depends on it. If v0.10 exposes no streaming API, fall back to queue-and-poll (the same
-job, the same events, chunked at draft granularity rather than token granularity) and
-flag it before proceeding.
+The `laravel/ai` streaming surface was confirmed against the SDK docs: agents expose
+`stream()` returning an iterable `StreamableAgentResponse` with a `then()` completion
+callback, plus `broadcast()`/`broadcastNow()` on individual events and an agent-level
+`broadcastOnQueue()`. The architecture above uses `stream()` and re-emits application
+events, for the reasons given.
+
+This also surfaced the structured-output conflict resolved in "Draft model" above.
 
 ## Visual system
 
@@ -176,11 +210,20 @@ Feature tests (Pest):
 
 - each suggestion rule in isolation, plus the cold-start path
 - `posts.store` dispatches `DraftPostContent` and does not call the model
-- `DraftPostContent` persists drafts and broadcasts `DraftChunk` and `DraftCompleted`
-  under `Event::fake()`
+- `DraftPostContent` persists a variant `A` draft and broadcasts `DraftChunk` and
+  `DraftCompleted` under `Event::fake()`, using `ComposerAgent::fake()`
+- `DraftPostContent` regenerates once when the streamed draft contains a banned term,
+  and persists the clean second attempt
 - `DraftPostContent` failure persists an error message and broadcasts `DraftFailed`
+- `posts.alternatives.store` generates variants A, B and C via the unchanged
+  `Copywriter`, and is rejected for a foreign team
 - `posts.{post}` channel authorization rejects a user from another team
 - Home renders with correct status-strip counts
+
+The existing `tests/Feature/Agent/PostPersistenceTest.php` and `PostLifecycleTest.php`
+assert synchronous draft creation on `posts.store` and will need updating to assert
+dispatch instead. `CopywriterTest.php` covers the unchanged three-variant path and
+should keep passing untouched — if it breaks, the composer split has leaked.
 
 Browser test: a Pest smoke on Home for JS errors, since it is the new landing route.
 
