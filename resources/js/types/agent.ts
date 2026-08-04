@@ -36,10 +36,19 @@ export type DraftData = {
 export type ThreadMessage = {
     id: number;
     role: 'user' | 'agent';
-    kind: 'text' | 'drafts' | 'run' | 'error';
+    kind: 'text' | 'drafts' | 'run' | 'edit' | 'error';
     body: string | null;
     payload: Record<string, unknown> | null;
     created_at: string;
+};
+
+export type SpanProposal = {
+    before: string;
+    selection: string;
+    after: string;
+    instruction: string;
+    replacement: string;
+    settled: boolean;
 };
 
 export type StepData = {
