@@ -31,3 +31,4 @@ yarn-error.log
 /browser/node_modules
 /storage/app/private/browser-profiles
 .superpowers/
+/.playwright-mcp

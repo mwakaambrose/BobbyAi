@@ -30,7 +30,7 @@ export default function AccountsIndex({ accounts }: Props) {
         <>
             <Head title="Accounts" />
 
-            <PageContainer width="narrow" className="space-y-4">
+            <PageContainer className="space-y-4">
                 <PageHeader
                     eyebrow="LinkedIn"
                     title="Accounts"

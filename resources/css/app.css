@@ -8,12 +8,15 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-    /* One family carries the whole interface. Geist is drawn for product UI:
-       tight apertures, even colour, and a mono companion on the same skeleton,
-       so machine output sits beside prose without a seam. */
+    /* Two voices. Outfit carries the interface: geometric, even in colour, and
+       quiet enough to disappear at 13-14px. Fraunces speaks at the top of a
+       page — a serif with real contrast and a little wonk, so a title reads as
+       written rather than rendered. */
     --font-sans:
-        'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+        'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
         sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+
+    --font-display: 'Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
 
     --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
@@ -28,14 +31,14 @@
 
     --text-title: 1.375rem;
     --text-title--line-height: 1.25;
-    --text-title--letter-spacing: -0.018em;
+    --text-title--letter-spacing: -0.008em;
     --text-title--font-weight: 600;
 
     /* The front door speaks at a different volume to the console pages. One
        display size and one softer radius carry it; everything else is shared. */
     --text-display: 1.9rem;
-    --text-display--line-height: 1.12;
-    --text-display--letter-spacing: -0.026em;
+    --text-display--line-height: 1.14;
+    --text-display--letter-spacing: -0.014em;
     --text-display--font-weight: 600;
 
     --radius-lg: var(--radius);
@@ -224,11 +227,18 @@
         @apply text-label text-muted-foreground;
     }
 
-    /* Headings. Weight and tighter tracking carry the hierarchy, not size
-       alone, which is what keeps dense screens legible. */
+    /* Headings. The serif marks the top of a page; below it, weight and
+       tighter tracking carry the hierarchy rather than size alone, which is
+       what keeps dense screens legible. */
+    .display,
+    .text-display,
+    .text-title {
+        @apply font-display;
+    }
+
     .display {
         @apply font-semibold;
-        letter-spacing: -0.018em;
+        letter-spacing: -0.01em;
     }
 
     /* A number meant to be compared against the ones beside it. */

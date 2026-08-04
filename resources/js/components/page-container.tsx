@@ -1,37 +1,23 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-type Width = 'narrow' | 'default' | 'wide';
-
-const widths: Record<Width, string> = {
-    /* A single column of settings or forms, held near a comfortable measure. */
-    narrow: 'max-w-2xl',
-    /* The working width for most pages: wide enough for a two-up split. */
-    default: 'max-w-5xl',
-    /* Tables and boards that genuinely need the room. */
-    wide: 'max-w-7xl',
-};
-
 type Props = {
     children: ReactNode;
-    width?: Width;
     className?: string;
 };
 
 /**
- * Every page sits in the same measure with the same margins, so the eye lands
- * in the same place on every navigation.
+ * One measure for every page. Wide enough for a board or a table, and the same
+ * on every screen the sidebar reaches, so the page never resizes underneath you
+ * as you move between menu items. Where a form or a column of prose needs a
+ * shorter line, it constrains itself inside this frame rather than narrowing
+ * the frame — that keeps the left edge fixed on every navigation.
  */
-export default function PageContainer({
-    children,
-    width = 'default',
-    className,
-}: Props) {
+export default function PageContainer({ children, className }: Props) {
     return (
         <div
             className={cn(
-                'mx-auto w-full flex-1 px-5 py-8 md:px-8 md:py-10',
-                widths[width],
+                'mx-auto w-full max-w-5xl flex-1 px-5 py-8 md:px-8 md:py-10',
                 className,
             )}
         >

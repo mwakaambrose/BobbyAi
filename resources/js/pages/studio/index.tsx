@@ -28,10 +28,16 @@ type Column = {
 type Props = {
     columns: Column[];
     totalPosts: number;
+    awaitingReview: number;
     accounts: AccountData[];
 };
 
-export default function Studio({ columns, totalPosts, accounts }: Props) {
+export default function Studio({
+    columns,
+    totalPosts,
+    awaitingReview,
+    accounts,
+}: Props) {
     const [composing, setComposing] = useState(false);
     const teamSlug = usePage().props.currentTeam?.slug ?? '';
 
@@ -56,10 +62,14 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
         <>
             <Head title="Studio" />
 
-            <PageContainer width="wide" className="flex h-full flex-col">
+            <PageContainer className="flex h-full flex-col">
                 <PageHeader
                     eyebrow={
-                        totalPosts === 1 ? '1 post' : `${totalPosts} posts`
+                        awaitingReview > 0
+                            ? `${awaitingReview} waiting for you`
+                            : totalPosts === 1
+                              ? '1 post'
+                              : `${totalPosts} posts`
                     }
                     title="Studio"
                     description="Every post, and exactly where the agent has taken it."
@@ -150,7 +160,10 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
                         </Button>
                     </EmptyState>
                 ) : (
-                    <div className="-mx-10 flex gap-6 overflow-x-auto px-10 pb-2">
+                    /* The board scrolls past the page margins rather than
+                       inside them, so a column is never clipped mid-card. The
+                       bleed matches the container's own padding exactly. */
+                    <div className="-mx-5 flex gap-6 overflow-x-auto px-5 pb-2 md:-mx-8 md:px-8">
                         {columns.map((column) => (
                             <BoardColumn
                                 key={column.status}
