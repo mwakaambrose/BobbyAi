@@ -26,7 +26,7 @@ final class StepNarrator
             return $this->describePhase($step->phase);
         }
 
-        $type = ActionType::tryFrom((string) ($action['action'] ?? ''));
+        $type = ActionType::tryFrom($action['action']);
         $target = $step->target;
 
         return match ($type) {
