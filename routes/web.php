@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Agent\BrandProfileController;
+use App\Http\Controllers\Agent\PostAlternativeController;
 use App\Http\Controllers\Agent\PostApprovalController;
 use App\Http\Controllers\Agent\PostController;
 use App\Http\Controllers\Agent\PostMessageController;
@@ -25,6 +26,7 @@ Route::prefix('{current_team}')
         Route::post('posts', [PostController::class, 'store'])->name('posts.store');
         Route::get('posts/{post}', [PostController::class, 'show'])->name('posts.show');
         Route::post('posts/{post}/messages', [PostMessageController::class, 'store'])->name('posts.messages.store');
+        Route::post('posts/{post}/alternatives', [PostAlternativeController::class, 'store'])->name('posts.alternatives.store');
         Route::post('posts/{post}/approve', [PostApprovalController::class, 'store'])->name('posts.approve');
 
         Route::get('runs', [RunController::class, 'index'])->name('runs.index');
