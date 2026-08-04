@@ -5,6 +5,8 @@ import { DraftCanvas } from '@/components/agent/draft-canvas';
 import { RunTimeline } from '@/components/agent/run-timeline';
 import { StepSkeleton } from '@/components/agent/step-row';
 import { ThreadColumn } from '@/components/agent/thread-column';
+import PageContainer from '@/components/page-container';
+import { usePostChannel } from '@/hooks/use-post-channel';
 import { usePostStream } from '@/hooks/use-post-stream';
 import { studio } from '@/routes';
 import { show } from '@/routes/posts';
@@ -38,6 +40,8 @@ export default function PostWorkspace({
     const isDrafting =
         post.status === 'draft' && messages.at(-1)?.role === 'user';
 
+    usePostChannel(post.id);
+
     const { streamed, failed } = usePostStream(post.id, isDrafting);
 
     const active = run?.status === 'queued' || run?.status === 'running';
@@ -64,59 +68,64 @@ export default function PostWorkspace({
         <>
             <Head title={truncateBrief(post.brief)} />
 
-            <div className="grid h-full grid-cols-1 gap-6 px-6 py-8 md:px-10 lg:grid-cols-2">
-                <div className="min-h-0 rounded-md border bg-card p-5">
-                    <ThreadColumn
-                        teamSlug={teamSlug}
-                        post={post}
-                        messages={messages}
-                        drafts={drafts}
-                        isDrafting={isDrafting}
-                    />
-                </div>
-
-                <section className="min-h-0 space-y-4 overflow-y-auto rounded-md border bg-card p-5">
-                    {run ? (
-                        <Deferred
-                            data="steps"
-                            fallback={
-                                <ol className="rounded-md border bg-card px-3 py-3">
-                                    <StepSkeleton />
-                                    <StepSkeleton />
-                                    <StepSkeleton />
-                                </ol>
-                            }
-                        >
-                            <RunTimeline
-                                run={run}
-                                steps={steps ?? []}
-                                teamSlug={teamSlug}
-                            />
-                        </Deferred>
-                    ) : (
-                        <DraftCanvas
+            <PageContainer className="flex h-full flex-col">
+                <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 lg:grid-cols-2">
+                    <div className="min-h-0 rounded-md border bg-card p-5">
+                        <ThreadColumn
                             teamSlug={teamSlug}
                             post={post}
+                            messages={messages}
                             drafts={drafts}
-                            streamed={streamed}
-                            failed={failed}
                             isDrafting={isDrafting}
                         />
-                    )}
+                    </div>
 
-                    {post.published_url && (
-                        <a
-                            href={post.published_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 text-sm text-verified underline-offset-4 hover:underline"
-                        >
-                            View it on LinkedIn{' '}
-                            <ExternalLink className="size-3.5" aria-hidden />
-                        </a>
-                    )}
-                </section>
-            </div>
+                    <section className="min-h-0 space-y-4 overflow-y-auto rounded-md border bg-card p-5">
+                        {run ? (
+                            <Deferred
+                                data="steps"
+                                fallback={
+                                    <ol className="rounded-md border bg-card px-3 py-3">
+                                        <StepSkeleton />
+                                        <StepSkeleton />
+                                        <StepSkeleton />
+                                    </ol>
+                                }
+                            >
+                                <RunTimeline
+                                    run={run}
+                                    steps={steps ?? []}
+                                    teamSlug={teamSlug}
+                                />
+                            </Deferred>
+                        ) : (
+                            <DraftCanvas
+                                teamSlug={teamSlug}
+                                post={post}
+                                drafts={drafts}
+                                streamed={streamed}
+                                failed={failed}
+                                isDrafting={isDrafting}
+                            />
+                        )}
+
+                        {post.published_url && (
+                            <a
+                                href={post.published_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1.5 text-sm text-verified underline-offset-4 hover:underline"
+                            >
+                                View it on LinkedIn{' '}
+                                <ExternalLink
+                                    className="size-3.5"
+                                    aria-hidden
+                                />
+                            </a>
+                        )}
+                    </section>
+                </div>
+            </PageContainer>
         </>
     );
 }

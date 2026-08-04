@@ -49,9 +49,13 @@ export function usePostStream(postId: number, isDrafting: boolean) {
             router.reload({ only: RELOAD_PROPS });
         }, 8000);
 
+        // The listeners come off, but the channel stays: refinement and the run
+        // theatre are on it too, and its lifetime belongs to usePostChannel.
         return () => {
             window.clearInterval(fallback);
-            echo().leave(`posts.${postId}`);
+            channel.stopListening('.draft.chunk');
+            channel.stopListening('.draft.completed');
+            channel.stopListening('.draft.failed');
         };
     }, [postId, isDrafting]);
 
