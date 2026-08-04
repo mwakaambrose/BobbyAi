@@ -4,7 +4,6 @@ import PasskeyVerify from '@/components/passkey-verify';
 import PasswordInput from '@/components/password-input';
 import TeamInvitationAlert from '@/components/team-invitation-alert';
 import TextLink from '@/components/text-link';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -126,14 +125,9 @@ export default function Login({
             </Form>
 
             {status && (
-                <div className="mb-4 flex justify-center">
-                    <Badge
-                        variant="verified"
-                        className="h-auto justify-center py-1.5 text-center whitespace-normal"
-                    >
-                        {status}
-                    </Badge>
-                </div>
+                <p className="mb-4 text-center text-sm text-verified">
+                    {status}
+                </p>
             )}
         </>
     );

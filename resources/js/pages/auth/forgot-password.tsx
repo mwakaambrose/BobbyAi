@@ -3,7 +3,6 @@ import { Form, Head } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,14 +15,9 @@ export default function ForgotPassword({ status }: { status?: string }) {
             <Head title="Forgot password" />
 
             {status && (
-                <div className="mb-4 flex justify-center">
-                    <Badge
-                        variant="verified"
-                        className="h-auto justify-center py-1.5 text-center whitespace-normal"
-                    >
-                        {status}
-                    </Badge>
-                </div>
+                <p className="mb-4 text-center text-sm text-verified">
+                    {status}
+                </p>
             )}
 
             <div className="space-y-6">

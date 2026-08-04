@@ -1,7 +1,6 @@
 // Components
 import { Form, Head } from '@inertiajs/react';
 import TextLink from '@/components/text-link';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { logout } from '@/routes';
@@ -13,15 +12,10 @@ export default function VerifyEmail({ status }: { status?: string }) {
             <Head title="Email verification" />
 
             {status === 'verification-link-sent' && (
-                <div className="mb-4 flex justify-center">
-                    <Badge
-                        variant="verified"
-                        className="h-auto justify-center py-1.5 text-center whitespace-normal"
-                    >
-                        A new verification link has been sent to the email
-                        address you provided during registration.
-                    </Badge>
-                </div>
+                <p className="mb-4 text-center text-sm text-verified">
+                    A new verification link has been sent to the email
+                    address you provided during registration.
+                </p>
             )}
 
             <Form {...send.form()} className="space-y-6 text-center">
