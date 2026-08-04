@@ -11,7 +11,14 @@ function ProgressRing({ steps, budget }: { steps: number; budget: number }) {
 
     return (
         <svg viewBox="0 0 36 36" className="size-5 -rotate-90" aria-hidden>
-            <circle cx="18" cy="18" r="15" fill="none" strokeWidth="5" className="stroke-muted" />
+            <circle
+                cx="18"
+                cy="18"
+                r="15"
+                fill="none"
+                strokeWidth="5"
+                className="stroke-muted"
+            />
             <circle
                 cx="18"
                 cy="18"
@@ -36,7 +43,7 @@ export function PostCard({ post, teamSlug }: Props) {
     return (
         <Link
             href={show([teamSlug, post.id])}
-            className="group block rounded-lg border border-border bg-card p-3 shadow-xs transition-[color,box-shadow,border-color] hover:border-agent/40 hover:shadow-sm focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:outline-none"
+            className="group block rounded-md border border-border bg-card p-3 transition-[color,border-color] hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         >
             <p className="line-clamp-4 text-sm leading-relaxed text-card-foreground">
                 {post.body ?? post.brief}

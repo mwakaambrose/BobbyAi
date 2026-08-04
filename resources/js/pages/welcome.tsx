@@ -47,13 +47,12 @@ function Hero() {
                 LinkedIn, on your terms
             </p>
             <h1 className="mt-4 font-serif text-5xl leading-[1.05] font-medium tracking-[-0.02em] text-balance sm:text-6xl">
-                An agent that writes your posts, and never publishes one
-                without you.
+                An agent that writes your posts, and never publishes one without
+                you.
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-balance text-muted-foreground">
-                {name} drafts in your voice, shows you exactly what it plans
-                to say, and waits. You approve the words. It handles the
-                rest.
+                {name} drafts in your voice, shows you exactly what it plans to
+                say, and waits. You approve the words. It handles the rest.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <Button size="lg" asChild>

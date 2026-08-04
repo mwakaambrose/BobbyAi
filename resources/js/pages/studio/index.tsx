@@ -5,6 +5,7 @@ import PostController from '@/actions/App/Http/Controllers/Agent/PostController'
 import { BoardColumn } from '@/components/agent/board-column';
 import { EmptyState } from '@/components/agent/empty-state';
 import InputError from '@/components/input-error';
+import PageContainer from '@/components/page-container';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -55,8 +56,11 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
         <>
             <Head title="Studio" />
 
-            <div className="flex h-full flex-col gap-6 p-4">
+            <PageContainer width="wide" className="flex h-full flex-col">
                 <PageHeader
+                    eyebrow={
+                        totalPosts === 1 ? '1 post' : `${totalPosts} posts`
+                    }
                     title="Studio"
                     description="Every post, and exactly where the agent has taken it."
                 >
@@ -69,14 +73,19 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
 
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>What should the post say?</DialogTitle>
+                                <DialogTitle>
+                                    What should the post say?
+                                </DialogTitle>
                                 <DialogDescription>
-                                    Describe the point, the tone, and anything that has to appear.
+                                    Describe the point, the tone, and anything
+                                    that has to appear.
                                 </DialogDescription>
                             </DialogHeader>
 
                             <Form
-                                {...PostController.store.form({ current_team: teamSlug })}
+                                {...PostController.store.form({
+                                    current_team: teamSlug,
+                                })}
                                 onSuccess={() => setComposing(false)}
                                 className="space-y-4"
                             >
@@ -94,14 +103,22 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
                                                 rows={5}
                                                 autoFocus
                                                 placeholder="Announce Growth Savings. Warm, no jargon, mention that members asked for it."
-                                                className="min-h-32 w-full rounded-lg border border-input bg-card px-3 py-2 text-sm leading-relaxed shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                                                className="min-h-32 w-full rounded-md border border-input bg-card px-3 py-2 text-sm leading-relaxed transition-[border-color,box-shadow] outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
                                             />
-                                            <InputError message={errors.brief} />
+                                            <InputError
+                                                message={errors.brief}
+                                            />
                                         </div>
 
-                                        <Button type="submit" disabled={processing} className="w-full">
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                            className="w-full"
+                                        >
                                             <Sparkles />
-                                            {processing ? 'Writing drafts…' : 'Write drafts'}
+                                            {processing
+                                                ? 'Writing drafts…'
+                                                : 'Write drafts'}
                                         </Button>
                                     </>
                                 )}
@@ -117,7 +134,9 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
                         description="The agent publishes through a real browser session that you sign in to yourself. No password is stored here."
                     >
                         <Button variant="outline" asChild>
-                            <a href={accountsIndex(teamSlug).url}>Go to accounts</a>
+                            <a href={accountsIndex(teamSlug).url}>
+                                Go to accounts
+                            </a>
                         </Button>
                     </EmptyState>
                 ) : totalPosts === 0 ? (
@@ -131,13 +150,17 @@ export default function Studio({ columns, totalPosts, accounts }: Props) {
                         </Button>
                     </EmptyState>
                 ) : (
-                    <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2">
+                    <div className="-mx-10 flex gap-6 overflow-x-auto px-10 pb-2">
                         {columns.map((column) => (
-                            <BoardColumn key={column.status} teamSlug={teamSlug} {...column} />
+                            <BoardColumn
+                                key={column.status}
+                                teamSlug={teamSlug}
+                                {...column}
+                            />
                         ))}
                     </div>
                 )}
-            </div>
+            </PageContainer>
         </>
     );
 }

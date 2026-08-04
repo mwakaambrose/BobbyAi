@@ -13,8 +13,8 @@ export default function VerifyEmail({ status }: { status?: string }) {
 
             {status === 'verification-link-sent' && (
                 <p className="mb-4 text-center text-sm text-verified">
-                    A new verification link has been sent to the email
-                    address you provided during registration.
+                    A new verification link has been sent to the email address
+                    you provided during registration.
                 </p>
             )}
 

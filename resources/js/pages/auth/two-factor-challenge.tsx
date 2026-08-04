@@ -77,7 +77,7 @@ export default function TwoFactorChallenge() {
                                 </>
                             ) : (
                                 <div className="flex flex-col items-center justify-center space-y-3 text-center">
-                                    <div className="flex w-full items-center justify-center rounded-xl bg-card p-4 shadow-xs">
+                                    <div className="flex w-full items-center justify-center rounded-md bg-card p-4">
                                         <InputOTP
                                             name="code"
                                             maxLength={OTP_MAX_LENGTH}

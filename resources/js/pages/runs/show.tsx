@@ -1,6 +1,7 @@
 import { Deferred, Head, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { StepRow, StepSkeleton } from '@/components/agent/step-row';
+import PageContainer from '@/components/page-container';
 import PageHeader from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { screenshot } from '@/routes/runs';
@@ -33,12 +34,19 @@ function Replay({ runId, steps }: { runId: number; steps: StepData[] }) {
     return (
         <div className="grid gap-6 lg:grid-cols-[19rem_1fr]">
             <ol
-                className="h-fit rounded-xl border bg-card px-3 py-3 shadow-xs"
+                className="h-fit rounded-md border bg-card px-3 py-3"
                 onMouseLeave={() => setCursor(0)}
             >
                 {steps.map((step, index) => (
-                    <div key={step.id} onMouseEnter={() => setCursor(index)} onFocus={() => setCursor(index)}>
-                        <StepRow step={step} last={index === steps.length - 1} />
+                    <div
+                        key={step.id}
+                        onMouseEnter={() => setCursor(index)}
+                        onFocus={() => setCursor(index)}
+                    >
+                        <StepRow
+                            step={step}
+                            last={index === steps.length - 1}
+                        />
                     </div>
                 ))}
             </ol>
@@ -48,10 +56,11 @@ function Replay({ runId, steps }: { runId: number; steps: StepData[] }) {
                     <img
                         src={screenshot([teamSlug, runId, current.id]).url}
                         alt={`What the agent saw at step ${current.index}`}
-                        className="w-full rounded-xl border"
+                        className="w-full rounded-md border"
                     />
                     <figcaption className="font-mono text-xs text-muted-foreground">
-                        step {String(current.index).padStart(2, '0')} · {current.phase}
+                        step {String(current.index).padStart(2, '0')} ·{' '}
+                        {current.phase}
                         {current.reasoning && ` · “${current.reasoning}”`}
                     </figcaption>
                 </figure>
@@ -67,10 +76,13 @@ export default function RunShow({ run, steps }: Props) {
         <>
             <Head title={`Run ${run.id}`} />
 
-            <div className="space-y-6 p-4">
+            <PageContainer>
                 <PageHeader
+                    eyebrow={`Post ${String(run.postId).padStart(3, '0')}`}
                     title={`Run ${String(run.id).padStart(3, '0')}`}
-                    description={run.failureReason ?? `Finished as ${run.status}.`}
+                    description={
+                        run.failureReason ?? `Finished as ${run.status}.`
+                    }
                 >
                     <Badge variant={variant}>{run.status}</Badge>
                 </PageHeader>
@@ -78,7 +90,7 @@ export default function RunShow({ run, steps }: Props) {
                 <Deferred
                     data="steps"
                     fallback={
-                        <ol className="max-w-xs rounded-xl border bg-card px-3 py-3 shadow-xs">
+                        <ol className="max-w-xs rounded-md border bg-card px-3 py-3">
                             <StepSkeleton />
                             <StepSkeleton />
                             <StepSkeleton />
@@ -87,7 +99,7 @@ export default function RunShow({ run, steps }: Props) {
                 >
                     <Replay runId={run.id} steps={steps ?? []} />
                 </Deferred>
-            </div>
+            </PageContainer>
         </>
     );
 }

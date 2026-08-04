@@ -11,9 +11,7 @@ export function ThreadMessage({ message, children }: Props) {
 
     return (
         <div className="space-y-2">
-            <p className="font-mono text-[11px] tracking-wide text-muted-foreground uppercase">
-                {isUser ? 'you' : 'bobby'}
-            </p>
+            <p className="eyebrow">{isUser ? 'you' : 'bobby'}</p>
 
             {message.body && (
                 <p

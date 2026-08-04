@@ -8,21 +8,29 @@ type Props = {
     children?: ReactNode;
 };
 
-export function EmptyState({ icon: Icon, title, description, children }: Props) {
+/**
+ * An empty screen is an invitation to act, so it is set like the opening of a
+ * section: a rule, the instruction in display type, and the action right
+ * under it. The icon sits small and inline rather than in a decorative badge.
+ */
+export function EmptyState({
+    icon: Icon,
+    title,
+    description,
+    children,
+}: Props) {
     return (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-border bg-muted/40 px-6 py-16 text-center">
-            <div className="flex size-10 items-center justify-center rounded-full bg-agent-muted text-agent">
-                <Icon className="size-5" aria-hidden />
+        <div className="border-t border-rule-strong py-10">
+            <div className="max-w-md space-y-4">
+                <Icon className="size-5 text-agent" aria-hidden />
+                <div className="space-y-2">
+                    <p className="display text-2xl">{title}</p>
+                    <p className="font-serif text-[0.9375rem] leading-relaxed text-muted-foreground italic">
+                        {description}
+                    </p>
+                </div>
+                {children && <div className="flex gap-2 pt-1">{children}</div>}
             </div>
-            <div className="space-y-1.5">
-                <p className="font-serif text-lg font-medium tracking-[-0.01em]">
-                    {title}
-                </p>
-                <p className="max-w-sm font-serif text-sm text-balance text-muted-foreground italic">
-                    {description}
-                </p>
-            </div>
-            {children}
         </div>
     );
 }

@@ -96,7 +96,7 @@ function TeamMembersSection({
                     <div
                         key={member.id}
                         data-test="member-row"
-                        className="flex items-center justify-between rounded-xl border bg-card p-4 shadow-xs"
+                        className="flex items-center justify-between rounded-md border bg-card p-4"
                     >
                         <div className="flex items-center gap-4">
                             <Avatar className="h-10 w-10">
@@ -207,7 +207,7 @@ function PendingInvitationsSection({
                     <div
                         key={invitation.code}
                         data-test="invitation-row"
-                        className="flex items-center justify-between rounded-xl border bg-card p-4 shadow-xs"
+                        className="flex items-center justify-between rounded-md border bg-card p-4"
                     >
                         <div className="flex items-center gap-4">
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
@@ -257,7 +257,7 @@ function DeleteTeamSection({ onDelete }: { onDelete: () => void }) {
                 title="Delete team"
                 description="Permanently delete your team"
             />
-            <div className="space-y-4 rounded-xl border border-destructive/20 bg-destructive/10 p-4 shadow-xs">
+            <div className="space-y-4 rounded-md border border-destructive/20 bg-destructive/10 p-4">
                 <div className="relative space-y-0.5 text-destructive">
                     <p className="font-medium">Warning</p>
                     <p className="text-sm">

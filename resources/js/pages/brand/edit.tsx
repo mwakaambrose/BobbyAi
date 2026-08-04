@@ -1,9 +1,16 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import BrandProfileController from '@/actions/App/Http/Controllers/Agent/BrandProfileController';
 import InputError from '@/components/input-error';
+import PageContainer from '@/components/page-container';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { BrandProfileData } from '@/types/agent';
@@ -13,7 +20,7 @@ type Props = {
 };
 
 const FIELD =
-    'w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm leading-relaxed shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50';
+    'w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-ring/50';
 
 export default function BrandEdit({ brand }: Props) {
     const teamSlug = usePage().props.currentTeam?.slug ?? '';
@@ -22,14 +29,17 @@ export default function BrandEdit({ brand }: Props) {
         <>
             <Head title="Brand voice" />
 
-            <div className="mx-auto w-full max-w-2xl space-y-8 p-4">
+            <PageContainer width="narrow">
                 <PageHeader
+                    eyebrow="How the agent writes"
                     title="Brand voice"
                     description="Everything the agent writes is conditioned on this."
                 />
 
                 <Form
-                    {...BrandProfileController.update.form({ current_team: teamSlug })}
+                    {...BrandProfileController.update.form({
+                        current_team: teamSlug,
+                    })}
                     options={{ preserveScroll: true }}
                     transform={(data) => ({
                         ...data,
@@ -54,7 +64,8 @@ export default function BrandEdit({ brand }: Props) {
                                 <CardHeader>
                                     <CardTitle>Voice and audience</CardTitle>
                                     <CardDescription>
-                                        How the agent should sound, and who it&apos;s talking to.
+                                        How the agent should sound, and who
+                                        it&apos;s talking to.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="grid gap-6">
@@ -72,7 +83,9 @@ export default function BrandEdit({ brand }: Props) {
                                     </div>
 
                                     <div className="grid gap-2">
-                                        <Label htmlFor="audience">Audience</Label>
+                                        <Label htmlFor="audience">
+                                            Audience
+                                        </Label>
                                         <Input
                                             id="audience"
                                             name="audience"
@@ -88,7 +101,8 @@ export default function BrandEdit({ brand }: Props) {
                                 <CardHeader>
                                     <CardTitle>Content rules</CardTitle>
                                     <CardDescription>
-                                        Guardrails the agent must follow on every generation.
+                                        Guardrails the agent must follow on
+                                        every generation.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="grid gap-6">
@@ -97,7 +111,9 @@ export default function BrandEdit({ brand }: Props) {
                                         <Input
                                             id="topics"
                                             name="topics"
-                                            defaultValue={brand.topics.join(', ')}
+                                            defaultValue={brand.topics.join(
+                                                ', ',
+                                            )}
                                             placeholder="savings, financial literacy"
                                         />
                                         <p className="text-xs text-muted-foreground">
@@ -106,16 +122,20 @@ export default function BrandEdit({ brand }: Props) {
                                     </div>
 
                                     <div className="grid gap-2">
-                                        <Label htmlFor="banned_terms">Never use</Label>
+                                        <Label htmlFor="banned_terms">
+                                            Never use
+                                        </Label>
                                         <Input
                                             id="banned_terms"
                                             name="banned_terms"
-                                            defaultValue={brand.bannedTerms.join(', ')}
+                                            defaultValue={brand.bannedTerms.join(
+                                                ', ',
+                                            )}
                                             placeholder="synergy, leverage"
                                         />
                                         <p className="text-xs text-muted-foreground">
-                                            Checked in code after every generation, not left to the
-                                            model.
+                                            Checked in code after every
+                                            generation, not left to the model.
                                         </p>
                                     </div>
                                 </CardContent>
@@ -125,17 +145,22 @@ export default function BrandEdit({ brand }: Props) {
                                 <CardHeader>
                                     <CardTitle>Examples</CardTitle>
                                     <CardDescription>
-                                        Posts that sound like you, used as few-shot references.
+                                        Posts that sound like you, used as
+                                        few-shot references.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="grid gap-2">
-                                        <Label htmlFor="examples">Examples</Label>
+                                        <Label htmlFor="examples">
+                                            Examples
+                                        </Label>
                                         <textarea
                                             id="examples"
                                             name="examples"
                                             rows={8}
-                                            defaultValue={brand.examples.join('\n\n')}
+                                            defaultValue={brand.examples.join(
+                                                '\n\n',
+                                            )}
                                             placeholder="Paste a post you were happy with. Separate each one with a blank line."
                                             className={FIELD}
                                         />
@@ -149,7 +174,7 @@ export default function BrandEdit({ brand }: Props) {
                         </>
                     )}
                 </Form>
-            </div>
+            </PageContainer>
         </>
     );
 }

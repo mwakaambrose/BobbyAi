@@ -1,5 +1,6 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import SocialAccountController from '@/actions/App/Http/Controllers/Agent/SocialAccountController';
+import PageContainer from '@/components/page-container';
 import PageHeader from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -29,8 +30,9 @@ export default function AccountsIndex({ accounts }: Props) {
         <>
             <Head title="Accounts" />
 
-            <div className="mx-auto w-full max-w-2xl space-y-6 p-4">
+            <PageContainer width="narrow" className="space-y-4">
                 <PageHeader
+                    eyebrow="LinkedIn"
                     title="Accounts"
                     description="The agent works in a real browser session. You sign in yourself, so no password is ever stored here."
                 />
@@ -41,11 +43,13 @@ export default function AccountsIndex({ accounts }: Props) {
                             <div className="space-y-1">
                                 <p className="font-medium">LinkedIn</p>
                                 <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                                    <Badge variant={accountBadge[account.status]}>
+                                    <Badge
+                                        variant={accountBadge[account.status]}
+                                    >
                                         {STATUS_LABEL[account.status]}
                                     </Badge>
                                     {account.lastVerifiedAt && (
-                                        <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+                                        <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
                                             · checked {account.lastVerifiedAt}
                                         </span>
                                     )}
@@ -61,7 +65,10 @@ export default function AccountsIndex({ accounts }: Props) {
                                     options={{ preserveScroll: true }}
                                 >
                                     {({ processing }) => (
-                                        <Button variant="outline" disabled={processing}>
+                                        <Button
+                                            variant="outline"
+                                            disabled={processing}
+                                        >
                                             Open browser and sign in
                                         </Button>
                                     )}
@@ -75,7 +82,9 @@ export default function AccountsIndex({ accounts }: Props) {
                                     options={{ preserveScroll: true }}
                                 >
                                     {({ processing }) => (
-                                        <Button disabled={processing}>Check connection</Button>
+                                        <Button disabled={processing}>
+                                            Check connection
+                                        </Button>
                                     )}
                                 </Form>
                             </div>
@@ -84,22 +93,30 @@ export default function AccountsIndex({ accounts }: Props) {
                         {account.status !== 'connected' && (
                             <ol className="mt-5 space-y-2 border-t border-border pt-5 text-sm text-muted-foreground">
                                 <li className="flex gap-3">
-                                    <span className="font-mono text-[11px] tabular-nums text-agent">01</span>
-                                    Open the browser. A Chromium window appears on this machine.
+                                    <span className="font-mono text-[11px] text-agent tabular-nums">
+                                        01
+                                    </span>
+                                    Open the browser. A Chromium window appears
+                                    on this machine.
                                 </li>
                                 <li className="flex gap-3">
-                                    <span className="font-mono text-[11px] tabular-nums text-agent">02</span>
-                                    Sign in to LinkedIn and clear two-factor yourself.
+                                    <span className="font-mono text-[11px] text-agent tabular-nums">
+                                        02
+                                    </span>
+                                    Sign in to LinkedIn and clear two-factor
+                                    yourself.
                                 </li>
                                 <li className="flex gap-3">
-                                    <span className="font-mono text-[11px] tabular-nums text-agent">03</span>
+                                    <span className="font-mono text-[11px] text-agent tabular-nums">
+                                        03
+                                    </span>
                                     Come back and check the connection.
                                 </li>
                             </ol>
                         )}
                     </Card>
                 ))}
-            </div>
+            </PageContainer>
         </>
     );
 }
