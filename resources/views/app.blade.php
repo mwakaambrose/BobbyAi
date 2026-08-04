@@ -26,7 +26,7 @@
             }
 
             html.dark {
-                background-color: oklch(0.19 0.008 55);
+                background-color: oklch(0.19 0.014 55);
             }
         </style>
 

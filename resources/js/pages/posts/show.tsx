@@ -9,6 +9,8 @@ import { RunTimeline } from '@/components/agent/run-timeline';
 import { StepSkeleton } from '@/components/agent/step-row';
 import { ThreadMessage } from '@/components/agent/thread-message';
 import { Button } from '@/components/ui/button';
+import { studio } from '@/routes';
+import { show } from '@/routes/posts';
 import type {
     DraftData,
     PostSummary,
@@ -198,3 +200,24 @@ export default function PostWorkspace({ post, drafts, messages, run, steps }: Pr
         </>
     );
 }
+
+PostWorkspace.layout = (props: {
+    currentTeam?: { slug: string } | null;
+    post: PostSummary;
+}) => ({
+    breadcrumbs: [
+        {
+            title: 'Studio',
+            href: props.currentTeam ? studio(props.currentTeam.slug) : '/',
+        },
+        {
+            title:
+                props.post.brief.length > 40
+                    ? `${props.post.brief.slice(0, 40)}…`
+                    : props.post.brief,
+            href: props.currentTeam
+                ? show([props.currentTeam.slug, props.post.id])
+                : '#',
+        },
+    ],
+});

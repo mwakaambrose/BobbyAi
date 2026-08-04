@@ -12,7 +12,7 @@ export default function AuthSplitLayout({
 
     return (
         <div className="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
-            <div className="relative hidden h-full flex-col justify-between bg-sidebar p-10 lg:flex">
+            <div className="relative hidden h-full flex-col justify-between border-r border-border bg-sidebar p-10 lg:flex">
                 <Link
                     href={home()}
                     className="relative z-20 flex items-center gap-2.5"
