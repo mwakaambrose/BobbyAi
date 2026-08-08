@@ -1,9 +1,17 @@
+import { existsSync } from 'node:fs';
 import http from 'node:http';
 import { act } from './act.mjs';
 import { observe } from './observe.mjs';
 import { closeSession, openSession, requireSession } from './session.mjs';
 
 const PORT = Number(process.env.SIDECAR_PORT ?? 4571);
+
+/**
+ * Check that Playwright's browser executable is installed for this runtime.
+ */
+function chromiumIsInstalled() {
+    return existsSync(chromium.executablePath());
+}
 
 /**
  * Read and parse a JSON request body.
@@ -28,7 +36,9 @@ const server = http.createServer(async (request, response) => {
 
     try {
         if (request.method === 'GET' && url.pathname === '/health') {
-            return json(response, 200, { ok: true, chromium: true });
+            const chromium = chromiumIsInstalled();
+
+            return json(response, chromium ? 200 : 503, { ok: chromium, chromium });
         }
 
         if (request.method === 'POST' && url.pathname === '/sessions') {

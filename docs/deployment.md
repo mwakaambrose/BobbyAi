@@ -108,11 +108,13 @@ architecture:
 uname -m     # aarch64 on Ampere A1, x86_64 on AMD shapes
 ```
 
-Install Chromium with system dependencies and let the failure surface at deploy
-time rather than at first run:
+Playwright's browser binaries must be installed for the same service user that
+launches the sidecar. Keep them in an explicit shared cache so a systemd
+restart, a non-login shell, or a Playwright upgrade cannot make the installer
+and the sidecar look in different locations:
 
 ```bash
-cd browser && npx playwright install --with-deps chromium
+sudo install -d -o www-data -g www-data /var/www/.cache/ms-playwright
 ```
 
 ## Provisioning
@@ -168,13 +170,22 @@ cd /var/www/bobbyai
 
 sudo -u www-data composer install --no-dev --optimize-autoloader
 sudo -u www-data npm ci && sudo -u www-data npm run build
-sudo -u www-data bash -c 'cd browser && npm ci && npx playwright install --with-deps chromium'
+sudo install -d -o www-data -g www-data /var/www/.cache/ms-playwright
+sudo -u www-data env HOME=/var/www PLAYWRIGHT_BROWSERS_PATH=/var/www/.cache/ms-playwright \
+    bash -c 'cd /var/www/bobbyai/browser && npm ci && npx playwright install chromium'
+sudo env HOME=/var/www PLAYWRIGHT_BROWSERS_PATH=/var/www/.cache/ms-playwright \
+    /var/www/bobbyai/browser/node_modules/.bin/playwright install-deps chromium
 
 sudo -u www-data cp .env.example .env
 sudo -u www-data php artisan key:generate
 sudo -u www-data touch database/database.sqlite
 sudo -u www-data php artisan migrate --force
 ```
+
+The `install-deps` command must run as root because it installs Linux libraries;
+the browser install itself runs as `www-data` so the sidecar can read the cache.
+The same two commands are repeated during [deploying changes](#deploying-changes)
+because Playwright may require a new browser revision after `npm ci`.
 
 `npm run build` on a small ARM box is the heaviest step of a deploy. If it runs
 out of memory, build elsewhere and ship `public/build`.
@@ -254,6 +265,8 @@ ExecStart=/usr/bin/node server.mjs
 Restart=always
 RestartSec=5
 Environment=SIDECAR_PORT=4571
+Environment=HOME=/var/www
+Environment=PLAYWRIGHT_BROWSERS_PATH=/var/www/.cache/ms-playwright
 
 [Install]
 WantedBy=multi-user.target
@@ -372,6 +385,11 @@ cd /var/www/bobbyai
 sudo -u www-data git pull
 sudo -u www-data composer install --no-dev --optimize-autoloader
 sudo -u www-data npm ci && sudo -u www-data npm run build
+sudo install -d -o www-data -g www-data /var/www/.cache/ms-playwright
+sudo -u www-data env HOME=/var/www PLAYWRIGHT_BROWSERS_PATH=/var/www/.cache/ms-playwright \
+    bash -c 'cd /var/www/bobbyai/browser && npm ci && npx playwright install chromium'
+sudo env HOME=/var/www PLAYWRIGHT_BROWSERS_PATH=/var/www/.cache/ms-playwright \
+    /var/www/bobbyai/browser/node_modules/.bin/playwright install-deps chromium
 sudo -u www-data php artisan migrate --force
 sudo -u www-data php artisan optimize      # config, route and view caches
 sudo systemctl restart bobbyai-worker bobbyai-sidecar bobbyai-reverb php8.4-fpm
@@ -388,6 +406,8 @@ Verify:
 
 ```bash
 sudo -u www-data php artisan agent:doctor
+sudo -u www-data env HOME=/var/www PLAYWRIGHT_BROWSERS_PATH=/var/www/.cache/ms-playwright \
+    /var/www/bobbyai/browser/node_modules/.bin/playwright install --list
 ```
 
 ## Backups
@@ -421,6 +441,7 @@ without a password.
 | Account keeps needing reconnection | Profile directory unwritable by `www-data`, or being wiped by a deploy |
 | Drafts appear all at once after a pause, never word by word | Reverb down or `/app` not proxied. Drafting is unaffected; this is the fallback reload doing its job |
 | Browser console shows a websocket handshake failure | `VITE_REVERB_*` compiled from stale values — rebuild the bundle, do not just restart Reverb |
+| `browserType.launchPersistentContext` says the Chromium executable is missing | The Playwright package was installed or upgraded without installing its matching browser binary, or the sidecar and installer use different caches. Run the browser install commands from [Application setup](#application-setup) as `www-data`, confirm the `PLAYWRIGHT_BROWSERS_PATH` systemd environment, then restart `bobbyai-sidecar` |
 
 Application logs go to `storage/logs`. `agent:doctor` remains the fastest triage
 for anything agent-related.
