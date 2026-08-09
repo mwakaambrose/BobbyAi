@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
 import http from 'node:http';
+import { chromium } from 'playwright';
 import { act } from './act.mjs';
 import { observe } from './observe.mjs';
 import { closeSession, openSession, requireSession } from './session.mjs';

@@ -160,7 +160,9 @@ through nginx.
 
 ## Application setup
 
-Deploy to `/var/www/bobbyai`, owned by `www-data`.
+Deploy to `/var/www/bobbyai`, owned by `www-data`. If the checkout lives at a
+different path (for example `/var/www/html/BobbyAi`), substitute that path in
+every command below.
 
 ```bash
 sudo mkdir -p /var/www/bobbyai
@@ -170,6 +172,8 @@ cd /var/www/bobbyai
 
 sudo -u www-data composer install --no-dev --optimize-autoloader
 sudo -u www-data npm ci && sudo -u www-data npm run build
+sudo chown -R www-data:www-data /var/www/bobbyai/browser
+sudo install -d -o www-data -g www-data /var/www/.npm
 sudo install -d -o www-data -g www-data /var/www/.cache/ms-playwright
 sudo -u www-data env HOME=/var/www PLAYWRIGHT_BROWSERS_PATH=/var/www/.cache/ms-playwright \
     bash -c 'cd /var/www/bobbyai/browser && npm ci && npx playwright install chromium'
@@ -246,6 +250,10 @@ writes sibling `-wal` and `-shm` files.
 ## Services
 
 Four long-running things: PHP-FPM (packaged), the sidecar, the worker, and Reverb.
+
+The service units below assume the checkout is `/var/www/bobbyai`. If the actual
+checkout is elsewhere, update every `WorkingDirectory` and application path in
+the units to match it; systemd does not follow the shell's current directory.
 
 Run the sidecar as `www-data`. It creates browser profile directories under the
 app's storage path, so it needs the same ownership as the app.
@@ -385,6 +393,8 @@ cd /var/www/bobbyai
 sudo -u www-data git pull
 sudo -u www-data composer install --no-dev --optimize-autoloader
 sudo -u www-data npm ci && sudo -u www-data npm run build
+sudo chown -R www-data:www-data /var/www/bobbyai/browser
+sudo install -d -o www-data -g www-data /var/www/.npm
 sudo install -d -o www-data -g www-data /var/www/.cache/ms-playwright
 sudo -u www-data env HOME=/var/www PLAYWRIGHT_BROWSERS_PATH=/var/www/.cache/ms-playwright \
     bash -c 'cd /var/www/bobbyai/browser && npm ci && npx playwright install chromium'
